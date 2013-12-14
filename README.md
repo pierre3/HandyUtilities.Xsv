@@ -9,20 +9,20 @@ Can read from TextReader. And accesses by indexer.
 public void ReadCsvTest_indexer()
 {
     string data = "No,ClassOfShip,Name,TaxIncludedPrice,Price,Maker" + Environment.NewLine
-        + "110,BattleShip,”ä‰b@Hiei,2625,\"2,500\",‚g" + Environment.NewLine
-        + "119,AerialBattleship,ˆÉ¨@Ise,3360,\"3,200\",‚g" + Environment.NewLine
-        + "216,AircraftCarrier,–P@Zuihou,2100,\"2,000\",‚g" + Environment.NewLine
-        + "320,LightCruiser ,–¼æ@Natori,1365,\"1,300\",‚s" + Environment.NewLine
-        + "334,HeavyCruiser ,“ß’q@Nachi,1890,\"1,800\",‚g" + Environment.NewLine
-        + "429,Destroyer,÷@Sakura,630,600,‚s";
+        + "110,BattleShip,æ¯”å¡ã€€Hiei,2625,\"2,500\",ï¼¨" + Environment.NewLine
+        + "119,AerialBattleship,ä¼Šå‹¢ã€€Ise,3360,\"3,200\",ï¼¨" + Environment.NewLine
+        + "216,AircraftCarrier,ç‘é³³ã€€Zuihou,2100,\"2,000\",ï¼¨" + Environment.NewLine
+        + "320,LightCruiser ,åå–ã€€Natori,1365,\"1,300\",ï¼´" + Environment.NewLine
+        + "334,HeavyCruiser ,é‚£æ™ºã€€Nachi,1890,\"1,800\",ï¼¨" + Environment.NewLine
+        + "429,Destroyer,æ¡œã€€Sakura,630,600,ï¼´";
 
     var expected = new[]{ 
-        new { No = 110, ClassOfShip = "BattleShip", Name = "”ä‰b@Hiei", TaxIncludedPrice = 2625, Price = 2500, Maker = Maker.‚g },
-        new { No = 119, ClassOfShip = "AerialBattleship", Name = "ˆÉ¨@Ise", TaxIncludedPrice = 3360, Price = 3200, Maker = Maker.‚g },
-        new { No = 216, ClassOfShip = "AircraftCarrier", Name = "–P@Zuihou", TaxIncludedPrice = 2100, Price = 2000, Maker = Maker.‚g},
-        new { No = 320, ClassOfShip = "LightCruiser", Name = "–¼æ@Natori", TaxIncludedPrice = 1365, Price = 1300, Maker = Maker.‚s },
-        new { No = 334, ClassOfShip = "HeavyCruiser", Name = "“ß’q@“ß’q", TaxIncludedPrice = 1890, Price = 1800, Maker = Maker.‚g },
-        new { No = 429, ClassOfShip = "Destroyer", Name = "÷@Sakura", TaxIncludedPrice = 630, Price = 600, Maker = Maker.‚s }
+        new { No = 110, ClassOfShip = "BattleShip", Name = "æ¯”å¡ã€€Hiei", TaxIncludedPrice = 2625, Price = 2500, Maker = Maker.ï¼¨ },
+        new { No = 119, ClassOfShip = "AerialBattleship", Name = "ä¼Šå‹¢ã€€Ise", TaxIncludedPrice = 3360, Price = 3200, Maker = Maker.ï¼¨ },
+        new { No = 216, ClassOfShip = "AircraftCarrier", Name = "ç‘é³³ã€€Zuihou", TaxIncludedPrice = 2100, Price = 2000, Maker = Maker.ï¼¨},
+        new { No = 320, ClassOfShip = "LightCruiser", Name = "åå–ã€€Natori", TaxIncludedPrice = 1365, Price = 1300, Maker = Maker.ï¼´ },
+        new { No = 334, ClassOfShip = "HeavyCruiser", Name = "é‚£æ™ºã€€é‚£æ™º", TaxIncludedPrice = 1890, Price = 1800, Maker = Maker.ï¼¨ },
+        new { No = 429, ClassOfShip = "Destroyer", Name = "æ¡œã€€Sakura", TaxIncludedPrice = 630, Price = 600, Maker = Maker.ï¼´ }
     };
 
     var target = new XsvData(new[] { "," });
@@ -104,7 +104,7 @@ class ShipModelDataRow : XsvDataRow
         this.Name = this["Name"].AsString( defaultValue:"Unnamed" );
         
 		var priceFormat = (NumberFormatInfo)CultureInfo.CurrentCulture.NumberFormat.Clone();
-        priceFormat.CurrencySymbol = "";
+        priceFormat.CurrencySymbol = "ï¿¥";
 		this.TaxIncludedPrice = this["TaxIncludedPrice"].AsInt32( NumberStyles.Currency, priceFormat, defaultValue:-1 );
 		
 		numFormat.CurrencySymbol = "yen";
@@ -119,7 +119,7 @@ class ShipModelDataRow : XsvDataRow
 		this["No"] = new XsvData(this.No);
         this["ClassOfShip"] = new XsvData(this.ClassOfShip);
         this["Name"] = new XsvData(this.Name);
-        this["TaxIncludedPrice"] = new XsvData(this.TaxIncludedPrice,"0");
+        this["TaxIncludedPrice"] = new XsvData(this.TaxIncludedPrice,"0ï¿¥");
         this["Price"] = new XsvData(this.Price,"0,000 yen");
         this["Maker] = new XsvData(this.Maker);
     }
@@ -128,29 +128,29 @@ class ShipModelDataRow : XsvDataRow
 enum Maker
 {
     UNKNOWN,
-    ‚`,
-    ‚s,
-    ‚g,
-    ‚r
+    ï¼¡,
+    ï¼´,
+    ï¼¨,
+    ï¼³
 }
 
 [TestMethod]
 public void ReadCsvTest_inhelitedXsvDataRow()
 {
 	string data = "No,ClassOfShip,Name,TaxIncludedPrice,Price,Maker" + Environment.NewLine
-        + "110,BattleShip,”ä‰b@Hiei,2625,\"2,500 yen\",‚g" + Environment.NewLine
-        + "119,AerialBattleship,ˆÉ¨@Ise,3360,\"3,200 yen\",‚g" + Environment.NewLine
-        + "216,AircraftCarrier,–P@Zuihou,2100,\"2,000 yen\",‚g" + Environment.NewLine
-        + "320,LightCruiser ,–¼æ@Natori,1365,\"1,300 yen\",‚s" + Environment.NewLine
-        + "334,HeavyCruiser ,“ß’q@Nachi,1890,\"1,800 yen\",‚g" + Environment.NewLine
+        + "110,BattleShip,æ¯”å¡ã€€Hiei,2625ï¿¥,\"2,500 yen\",ï¼¨" + Environment.NewLine
+        + "119,AerialBattleship,ä¼Šå‹¢ã€€Ise,3360ï¿¥,\"3,200 yen\",ï¼¨" + Environment.NewLine
+        + "216,AircraftCarrier,ç‘é³³ã€€Zuihou,2100ï¿¥,\"2,000 yen\",ï¼¨" + Environment.NewLine
+        + "320,LightCruiser ,åå–ã€€Natori,1365ï¿¥,\"1,300 yen\",ï¼´" + Environment.NewLine
+        + "334,HeavyCruiser ,é‚£æ™ºã€€Nachi,1890ï¿¥,\"1,800 yen\",ï¼¨" + Environment.NewLine
         + "xxx,,,xxx,xxx,xxx";
 
     var expected = new[]{ 
-        new { No = 110, ClassOfShip = "BattleShip", Name = "”ä‰b@Hiei", TaxIncludedPrice = 2625, Price = 2500, Maker = Maker.‚g },
-        new { No = 119, ClassOfShip = "AerialBattleship", Name = "ˆÉ¨@Ise", TaxIncludedPrice = 3360, Price = 3200, Maker = Maker.‚g },
-        new { No = 216, ClassOfShip = "AircraftCarrier", Name = "–P@Zuihou", TaxIncludedPrice = 2100, Price = 2000, Maker = Maker.‚g},
-        new { No = 320, ClassOfShip = "LightCruiser", Name = "–¼æ@Natori", TaxIncludedPrice = 1365, Price = 1300, Maker = Maker.‚s },
-        new { No = 334, ClassOfShip = "HeavyCruiser", Name = "“ß’q@“ß’q", TaxIncludedPrice = 1890, Price = 1800, Maker = Maker.‚g },
+        new { No = 110, ClassOfShip = "BattleShip", Name = "æ¯”å¡ã€€Hiei", TaxIncludedPrice = 2625, Price = 2500, Maker = Maker.ï¼¨ },
+        new { No = 119, ClassOfShip = "AerialBattleship", Name = "ä¼Šå‹¢ã€€Ise", TaxIncludedPrice = 3360, Price = 3200, Maker = Maker.ï¼¨ },
+        new { No = 216, ClassOfShip = "AircraftCarrier", Name = "ç‘é³³ã€€Zuihou", TaxIncludedPrice = 2100, Price = 2000, Maker = Maker.ï¼¨},
+        new { No = 320, ClassOfShip = "LightCruiser", Name = "åå–ã€€Natori", TaxIncludedPrice = 1365, Price = 1300, Maker = Maker.ï¼´ },
+        new { No = 334, ClassOfShip = "HeavyCruiser", Name = "é‚£æ™ºã€€é‚£æ™º", TaxIncludedPrice = 1890, Price = 1800, Maker = Maker.ï¼¨ },
         new { No = 0, ClassOfShip = "Unknown", Name = "Unnamed", TaxIncludedPrice = -1, Price = -1, Maker= Maker.UNKNOWN }
     };
     
@@ -194,14 +194,14 @@ public void ReadXsvTest_autoBinding()
 {
     var data =
           "No,ClassOfShip,Name,TaxIncludedPrice,Price,Maker" + Environment.NewLine
-        + "103,BattleShip,Ré@Yamashiro,1785,\"1,700\",‚`" + Environment.NewLine
-        + "215,AircraftCarrier,M”Z@Shinano,2940,\"2,800\",‚s" + Environment.NewLine
-        + "442,Destroyer,—z‰Š@Kagero,1050,\"1,000\",‚`" + Environment.NewLine;
+        + "103,BattleShip,å±±åŸã€€Yamashiro,1785,\"1,700\",ï¼¡" + Environment.NewLine
+        + "215,AircraftCarrier,ä¿¡æ¿ƒã€€Shinano,2940,\"2,800\",ï¼´" + Environment.NewLine
+        + "442,Destroyer,é™½ç‚ã€€Kagero,1050,\"1,000\",ï¼¡" + Environment.NewLine;
 
     var expected = new[]{ 
-        new { No = 103, ClassOfShip = "BattleShip", Name = "Ré@Yamashiro", TaxIncludedPrice = 1785, Price = 1700, Maker= Maker.‚` },
-        new { No = 215, ClassOfShip = "AircraftCarrier", Name = "M”Z@Shinano", TaxIncludedPrice = 2940, Price = 2800, Maker= Maker.‚s },
-        new { No = 442, ClassOfShip = "Destroyer", Name = "—z‰Š@Kagero", TaxIncludedPrice = 1050, Price = 1000, Maker= Maker.‚` }
+        new { No = 103, ClassOfShip = "BattleShip", Name = "å±±åŸã€€Yamashiro", TaxIncludedPrice = 1785, Price = 1700, Maker= Maker.ï¼¡ },
+        new { No = 215, ClassOfShip = "AircraftCarrier", Name = "ä¿¡æ¿ƒã€€Shinano", TaxIncludedPrice = 2940, Price = 2800, Maker= Maker.ï¼´ },
+        new { No = 442, ClassOfShip = "Destroyer", Name = "é™½ç‚ã€€Kagero", TaxIncludedPrice = 1050, Price = 1000, Maker= Maker.ï¼¡ }
     };
 
     var target = new TypedXsvData<ShipModel>(new[] { "," }, isAutoBinding: true);
@@ -235,31 +235,31 @@ public void ReadXsvTest_eventHandler()
 {
     var data =
           "No,ClassOfShip,Name,TaxIncludedPrice,Price,Maker" + Environment.NewLine
-        + "103,BattleShip,Ré@Yamashiro,1.785K,\"1,700\",‚`" + Environment.NewLine
-        + "215,AircraftCarrier,M”Z@Shinano,2.940K,\"2,800\",‚s" + Environment.NewLine
-        + "442,Destroyer,—z‰Š@Kagero,1.050K,\"1,000\",‚`" + Environment.NewLine;
+        + "103,BattleShip,å±±åŸã€€Yamashiro,1.785Kï¿¥,\"1,700ï¿¥\",ï¼¡" + Environment.NewLine
+        + "215,AircraftCarrier,ä¿¡æ¿ƒã€€Shinano,2.940Kï¿¥,\"2,800ï¿¥\",ï¼´" + Environment.NewLine
+        + "442,Destroyer,é™½ç‚ã€€Kagero,1.050Kï¿¥,\"1,000ï¿¥\",ï¼¡" + Environment.NewLine;
 
     var expected = new[]{ 
-        new { No = 103, ClassOfShip = "BattleShip", Name = "Ré@Yamashiro", TaxIncludedPrice_KY = 1.785, Price = 1700, Maker= Maker.‚` },
-        new { No = 215, ClassOfShip = "AircraftCarrier", Name = "M”Z@Shinano", TaxIncludedPrice_KY = 2.940, Price = 2800, Maker= Maker.‚s },
-        new { No = 442, ClassOfShip = "Destroyer", Name = "—z‰Š@Kagero", TaxIncludedPrice_KY = 1.050, Price = 1000, Maker= Maker.‚` }
+        new { No = 103, ClassOfShip = "BattleShip", Name = "å±±åŸã€€Yamashiro", TaxIncludedPrice_KY = 1.785, Price = 1700, Maker= Maker.ï¼¡ },
+        new { No = 215, ClassOfShip = "AircraftCarrier", Name = "ä¿¡æ¿ƒã€€Shinano", TaxIncludedPrice_KY = 2.940, Price = 2800, Maker= Maker.ï¼´ },
+        new { No = 442, ClassOfShip = "Destroyer", Name = "é™½ç‚ã€€Kagero", TaxIncludedPrice_KY = 1.050, Price = 1000, Maker= Maker.ï¼¡ }
     };
 
     var target = new TypedXsvData<ShipModelC>(new[] { "," }, isAutoBinding: true);
     target.Attached += (o, e) =>
     {
         var numFormat = (NumberFormatInfo)CultureInfo.CurrentCulture.NumberFormat.Clone();
-        numFormat.CurrencySymbol = "";
+        numFormat.CurrencySymbol = "ï¿¥";
         e.Fields.Price = e.Row["Price"].AsInt32(NumberStyles.Currency, numFormat);
 
-        numFormat.CurrencySymbol = "K";
+        numFormat.CurrencySymbol = "Kï¿¥";
         e.Fields.TaxIncludedPrice_KY = e.Row["TaxIncludedPrice"].AsDouble(NumberStyles.Currency, numFormat);
 
     };
     target.Updated += (o, e) =>
     {
-        e.Row["TaxIncludedPrice"] = new XsvField(e.Fields.TaxIncludedPrice_KY, "0.000K");
-        e.Row["Price"] = new XsvField(e.Fields.Price, "0,000");
+        e.Row["TaxIncludedPrice"] = new XsvField(e.Fields.TaxIncludedPrice_KY, "0.000Kï¿¥");
+        e.Row["Price"] = new XsvField(e.Fields.Price, "0,000ï¿¥");
     };
 
     using (var reader = new System.IO.StringReader(data))
