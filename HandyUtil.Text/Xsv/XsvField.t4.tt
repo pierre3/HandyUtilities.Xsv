@@ -1,0 +1,150 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Globalization" #>
+<#@ output extension=".cs" #>
+<# 
+KeyValuePair<string,string>[] types = new []
+{
+	new KeyValuePair<string,string>("sbyte","SByte"),
+	new KeyValuePair<string,string>("byte","Byte"),
+	new KeyValuePair<string,string>("char","Char"),
+	new KeyValuePair<string,string>("short","Int16"),
+	new KeyValuePair<string,string>("ushort","UInt16"),
+	new KeyValuePair<string,string>("int","Int32"),
+	new KeyValuePair<string,string>("uint","UInt32"),
+	new KeyValuePair<string,string>("long","Int64"),
+	new KeyValuePair<string,string>("ulong","UInt64"),
+	new KeyValuePair<string,string>("float","Float"),
+	new KeyValuePair<string,string>("double","Double"),
+	new KeyValuePair<string,string>("decimal","Decimal"),
+	new KeyValuePair<string,string>("DateTime","DateTime"),
+	new KeyValuePair<string,string>("bool","Boolean")
+};
+#>
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using HandyUtil.Extensions.System;
+
+namespace HandyUtil.Text.Xsv
+{
+    public partial struct XsvField
+    {
+
+<# foreach(var typeName in types){ #>
+        public <#= typeName.Key #> As<#= typeName.Value #>()
+        {
+            return Source.To<#= typeName.Value #>();
+        }
+
+        public <#= typeName.Key #> As<#= typeName.Value #>(<#= typeName.Key #> defaultValue)
+        {
+            return Source.To<#= typeName.Value #>OrDefault(defaultValue);
+        }
+
+		public <#= typeName.Key #>? AsNullable<#= typeName.Value #>()
+        {
+            return Source.To<#= typeName.Value #>OrNull();
+        }
+
+<# if(typeName.Key == "DateTime"){ #>
+		public <#= typeName.Key #> As<#= typeName.Value #>(IFormatProvider formatProvider)
+        {
+            return Source.To<#= typeName.Value #>(formatProvider);
+        }
+		
+		public <#= typeName.Key #> As<#= typeName.Value #>(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles)
+        {
+            return Source.To<#= typeName.Value #>(formatProvider, dateTimeStyles);
+        }
+		
+		public <#= typeName.Key #>? AsNullable<#= typeName.Value #>(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles)
+        {
+            return Source.To<#= typeName.Value #>OrNull(formatProvider, dateTimeStyles);
+        }
+
+		public <#= typeName.Key #> As<#= typeName.Value #>(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles, <#= typeName.Key #> defaultValue)
+        {
+            return Source.To<#= typeName.Value #>OrDefault(formatProvider, dateTimeStyles, defaultValue);
+        }
+
+		public XsvField(<#= typeName.Key #> value, string format ="")
+			:this()
+        {
+            Source = value.ToString(format);
+        }
+
+		public XsvField(<#= typeName.Key #> value, string format, IFormatProvider formatProvider)
+			:this()
+        {
+            Source = value.ToString(format, formatProvider);
+        }
+
+<# } else if( typeName.Key != "bool" && typeName.Key != "char" ) { #>
+		public <#= typeName.Key #> As<#= typeName.Value #>(IFormatProvider formatProvider)
+        {
+            return Source.To<#= typeName.Value #>(formatProvider);
+        }
+
+		public <#= typeName.Key #> As<#= typeName.Value #>(NumberStyles numberStyles)
+        {
+            return Source.To<#= typeName.Value #>(numberStyles);
+        }
+		
+		public <#= typeName.Key #> As<#= typeName.Value #>(NumberStyles numberStyles, IFormatProvider formatProvider)
+        {
+            return Source.To<#= typeName.Value #>(numberStyles, formatProvider);
+        }
+
+		public <#= typeName.Key #>? AsNullable<#= typeName.Value #>(NumberStyles numberStyles)
+        {
+            return Source.To<#= typeName.Value #>OrNull(numberStyles);
+        }
+		
+		public <#= typeName.Key #>? AsNullable<#= typeName.Value #>(NumberStyles numberStyles, IFormatProvider formatProvider)
+        {
+            return Source.To<#= typeName.Value #>OrNull(numberStyles, formatProvider);
+        }
+
+		public <#= typeName.Key #> As<#= typeName.Value #>(NumberStyles numberStyles, <#= typeName.Key #> defaultValue)
+        {
+            return Source.To<#= typeName.Value #>OrDefault(numberStyles, defaultValue);
+        }
+		
+		public <#= typeName.Key #> As<#= typeName.Value #>(NumberStyles numberStyles, IFormatProvider formatProvider, <#= typeName.Key #> defaultValue)
+        {
+            return Source.To<#= typeName.Value #>OrDefault(numberStyles, formatProvider, defaultValue);
+        }
+
+        public XsvField(<#= typeName.Key #> value, string format ="")
+			:this()
+        {
+            Source = value.ToString(format);
+        }
+		
+		public XsvField(<#= typeName.Key #> value, string format, IFormatProvider formatProvider)
+			:this()
+        {
+            Source = value.ToString(format, formatProvider);
+        }
+
+<# } #>
+        public static explicit operator <#= typeName.Key #>(XsvField field)
+        {
+            return field.As<#= typeName.Value #>();
+        }
+
+		public static explicit operator <#= typeName.Key #>?(XsvField field)
+        {
+            return field.AsNullable<#= typeName.Value #>();
+        }
+
+<# } #>
+    }
+}

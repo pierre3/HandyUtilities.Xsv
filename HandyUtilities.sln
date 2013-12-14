@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyUtilConsole", "HandyUtilConsole\HandyUtilConsole.csproj", "{70829527-D25C-450B-895B-E4585A3ADCDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyUtil.TextTest", "HandyUtil.TextTest\HandyUtil.TextTest.csproj", "{2D4DB5E0-A836-4C7E-A9B7-BE52F621AE3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyUtil.Text", "HandyUtil.Text\HandyUtil.Text.csproj", "{730DCFF5-73A3-453F-B087-EAFEF1BBA1F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyUtil.ExtensionsTest", "HandyUtil.ExtensionsTest\HandyUtil.ExtensionsTest.csproj", "{A26DAA31-2358-4928-B723-0962C3BE2FB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandyUtil.Extensions", "HandyUtil.Extensions\HandyUtil.Extensions.csproj", "{74BC3A81-685C-4CA5-9BCB-5DFEC8BC1B89}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70829527-D25C-450B-895B-E4585A3ADCDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70829527-D25C-450B-895B-E4585A3ADCDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70829527-D25C-450B-895B-E4585A3ADCDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70829527-D25C-450B-895B-E4585A3ADCDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D4DB5E0-A836-4C7E-A9B7-BE52F621AE3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D4DB5E0-A836-4C7E-A9B7-BE52F621AE3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D4DB5E0-A836-4C7E-A9B7-BE52F621AE3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D4DB5E0-A836-4C7E-A9B7-BE52F621AE3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{730DCFF5-73A3-453F-B087-EAFEF1BBA1F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{730DCFF5-73A3-453F-B087-EAFEF1BBA1F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{730DCFF5-73A3-453F-B087-EAFEF1BBA1F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{730DCFF5-73A3-453F-B087-EAFEF1BBA1F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A26DAA31-2358-4928-B723-0962C3BE2FB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A26DAA31-2358-4928-B723-0962C3BE2FB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A26DAA31-2358-4928-B723-0962C3BE2FB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26DAA31-2358-4928-B723-0962C3BE2FB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74BC3A81-685C-4CA5-9BCB-5DFEC8BC1B89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74BC3A81-685C-4CA5-9BCB-5DFEC8BC1B89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74BC3A81-685C-4CA5-9BCB-5DFEC8BC1B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74BC3A81-685C-4CA5-9BCB-5DFEC8BC1B89}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

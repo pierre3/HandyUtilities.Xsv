@@ -1,0 +1,180 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Globalization" #>
+<#@ output extension=".cs" #>
+<# 
+
+KeyValuePair<string,string>[] types = new []
+{
+	new KeyValuePair<string,string>("sbyte","SByte"),
+	new KeyValuePair<string,string>("byte","Byte"),
+	new KeyValuePair<string,string>("char","Char"),
+	new KeyValuePair<string,string>("short","Int16"),
+	new KeyValuePair<string,string>("ushort","UInt16"),
+	new KeyValuePair<string,string>("int","Int32"),
+	new KeyValuePair<string,string>("uint","UInt32"),
+	new KeyValuePair<string,string>("long","Int64"),
+	new KeyValuePair<string,string>("ulong","UInt64"),
+	new KeyValuePair<string,string>("float","Float"),
+	new KeyValuePair<string,string>("double","Double"),
+	new KeyValuePair<string,string>("decimal","Decimal"),
+	new KeyValuePair<string,string>("DateTime","DateTime"),
+	new KeyValuePair<string,string>("bool","Boolean")
+};
+
+#>
+using System;
+using System.Linq;
+using System.Text;
+using System.Collections.Generic;
+using System.Globalization;
+
+namespace HandyUtil.Extensions.System
+{
+	public static partial class StringExt
+	{
+<# foreach(var typeName in types){ #>
+		
+		#region string to <#= typeName.Key #> methods	
+		public static <#= typeName.Key #> To<#= typeName.Value #>(this string s)
+		{
+			return <#= typeName.Key #>.Parse(s);
+		}
+
+		public static <#= typeName.Key #>? To<#= typeName.Value #>OrNull(this string s)
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s,out result))
+			{
+				return result;
+			}
+			return null;
+		}
+		
+		public static <#= typeName.Key #> To<#= typeName.Value #>OrDefault(this string s, <#= typeName.Key #> defaultValue = default(<#= typeName.Key #>))
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s,out result))
+			{
+				return result;
+			}
+			return defaultValue;
+		}
+	<# if(typeName.Key == "DateTime") 
+	{ #>
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>(this string s, IFormatProvider formatProvider)
+		{
+			return <#= typeName.Key #>.Parse(s, formatProvider);
+		}
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>(this string s, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles)
+		{
+			return <#= typeName.Key #>.Parse(s, formatProvider, dateTimeStyles);
+		}
+
+		public static <#= typeName.Key #>? To<#= typeName.Value #>OrNull(this string s, DateTimeStyles dateTimeStyles)
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s, null, dateTimeStyles, out result))
+			{
+				return result;
+			}
+			return null;
+		}
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>OrDefault(this string s, DateTimeStyles dateTimeStyles, <#= typeName.Key #> defaultValue = default(<#= typeName.Key #>))
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s, null, dateTimeStyles, out result))
+			{
+				return result;
+			}
+			return defaultValue;
+		}
+
+		public static <#= typeName.Key #>? To<#= typeName.Value #>OrNull(this string s, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles)
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s, formatProvider, dateTimeStyles, out result))
+			{
+				return result;
+			}
+			return null;
+		}
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>OrDefault(this string s,IFormatProvider formatProvider, DateTimeStyles dateTimeStyles, <#= typeName.Key #> defaultValue = default(<#= typeName.Key #>))
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s, formatProvider, dateTimeStyles, out result))
+			{
+				return result;
+			}
+			return defaultValue;
+		}
+	<# }else if(typeName.Key != "bool" && typeName.Key != "char")
+	{ #>
+		
+		public static <#= typeName.Key #> To<#= typeName.Value #>(this string s, IFormatProvider formatProvider)
+		{
+			return <#= typeName.Key #>.Parse(s, formatProvider);
+		}
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>(this string s, NumberStyles numberStyles)
+		{
+			return <#= typeName.Key #>.Parse(s, numberStyles);
+		}
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>(this string s, NumberStyles numberStyles, IFormatProvider formatProvider)
+		{
+			return <#= typeName.Key #>.Parse(s, numberStyles, formatProvider);
+		}
+
+		public static <#= typeName.Key #>? To<#= typeName.Value #>OrNull(this string s, NumberStyles numberStyles, IFormatProvider formatProvider)
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s, numberStyles, formatProvider,out result))
+			{
+				return result;
+			}
+			return null;
+		}
+
+		public static <#= typeName.Key #>? To<#= typeName.Value #>OrNull(this string s, NumberStyles numberStyles)
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s, numberStyles, null, out result))
+			{
+				return result;
+			}
+			return null;
+		}
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>OrDefault(this string s, NumberStyles numberStyles, <#= typeName.Key #> defaultValue = default(<#= typeName.Key #>))
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s, numberStyles, null, out result))
+			{
+				return result;
+			}
+			return defaultValue;
+		}
+
+		public static <#= typeName.Key #> To<#= typeName.Value #>OrDefault(this string s, NumberStyles numberStyles, IFormatProvider formatProvider, <#= typeName.Key #> defaultValue = default(<#= typeName.Key #>))
+		{
+			<#= typeName.Key #> result;
+			if(<#= typeName.Key #>.TryParse(s,numberStyles, formatProvider, out result))
+			{
+				return result;
+			}
+			return defaultValue;
+		}
+	<# } #>
+	#endregion
+<# } #>
+	}
+}
+
