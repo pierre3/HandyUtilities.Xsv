@@ -172,7 +172,7 @@ public void ReadCsvTest_inhelitedXsvDataRow()
 }
 ```
 
-### Using TypedXsvData<T> class
+### Using TypedXsvData\<T\> class
 
 #### Auto-binding
 Supports auto-binding. Bind to public properties of any class.
