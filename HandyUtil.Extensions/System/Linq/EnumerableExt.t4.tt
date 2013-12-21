@@ -7,20 +7,20 @@
 <#@ output extension=".cs" #>
 <# 
 
-KeyValuePair<string,string>[] types = new []
+var types = new Dictionary<string,string>()
 {
-	new KeyValuePair<string,string>("sbyte","SByte"),
-	new KeyValuePair<string,string>("byte","Byte"),
-	new KeyValuePair<string,string>("short","Int16"),
-	new KeyValuePair<string,string>("ushort","UInt16"),
-	new KeyValuePair<string,string>("int","Int32"),
-	new KeyValuePair<string,string>("uint","UInt32"),
-	new KeyValuePair<string,string>("long","Int64"),
-	new KeyValuePair<string,string>("ulong","UInt64"),
-	new KeyValuePair<string,string>("float","Float"),
-	new KeyValuePair<string,string>("double","Double"),
-	new KeyValuePair<string,string>("decimal","Decimal"),
-	new KeyValuePair<string,string>("DateTime","DateTime")
+	{"sbyte","SByte"},
+	{"byte","Byte"},
+	{"short","Int16"},
+	{"ushort","UInt16"},
+	{"int","Int32"},
+	{"uint","UInt32"},
+	{"long","Int64"},
+	{"ulong","UInt64"},
+	{"float","Float"},
+	{"double","Double"},
+	{"decimal","Decimal"},
+	{"DateTime","DateTime"},
 };
 
 #>
