@@ -183,6 +183,7 @@ namespace Utility.TextTest
                 Assert.AreEqual(x.exp.本体価格, x.row.本体価格);
                 Assert.AreEqual(x.exp.メーカー, x.row.メーカー);
             }
+
         }
 
 

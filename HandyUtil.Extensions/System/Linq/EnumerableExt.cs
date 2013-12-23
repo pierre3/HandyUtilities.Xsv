@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace HandyUtil.Extensions.System.Linq
 {
-    public partial class EnumerableExt
+    public static partial class EnumerableExt
     {
         public static string ConcatWith<T>(this IEnumerable<T> source, string separator)
         {
-            return source.Select(s => s.ToString()).Aggregate((buf, s) => buf + separator + s);
+            return string.Join<T>(separator, source);
         }
 
-        public static string ConcatWith<T>(this IEnumerable<T> source, string separator, string format, IFormatProvider provider) where T : IFormattable
+        public static string ConcatWith<T>(this IEnumerable<T> source, string separator, string format, IFormatProvider provider = null) where T : IFormattable
         {
-            return source.Select(s => s.ToString(format, provider)).Aggregate((buf, s) => buf + separator + s);
+            return string.Join(separator, source.Select(value => value.ToString(format, provider)));
         }
 
         public static IEnumerable<TResult> Zip<T1, T2, TResult>(this IEnumerable<T1> left, IEnumerable<T2> right,
@@ -40,7 +40,7 @@ namespace HandyUtil.Extensions.System.Linq
         }
 
         public static IEnumerable<TResult> Zip<T1, T2, TResult>(this IEnumerable<T1> left, IEnumerable<T2> right,
-            Func<T1, T2, TResult> selector, Func<int,T1> followingSelectorL, Func<int,T2> followingSelectorR)
+            Func<T1, T2, TResult> selector, Func<int, T1> followingSelectorL, Func<int, T2> followingSelectorR)
         {
             using (var eL = left.GetEnumerator())
             using (var eR = right.GetEnumerator())

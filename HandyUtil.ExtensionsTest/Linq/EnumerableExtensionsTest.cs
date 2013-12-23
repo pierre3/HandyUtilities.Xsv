@@ -151,6 +151,20 @@ namespace HendyUtil.ExtensionsTest
             actual = samples.ConcatWith(", ", "N", new sampleClass01.Formatter());
             expected = "Name: taro, Name: jiro, Name: saburo";
             Assert.AreEqual(expected, actual);
+
+            Console.WriteLine(new[] { 1000, 1980, 3980, 4500, 6398 }.ConcatWith(", ", "C"));
+
+            var sqrts = Enumerable.Range(1, 10).Select(n => Math.Sqrt(n));
+            Console.WriteLine(sqrts.ConcatWith(", ", "E03"));
+
+            var days = new[]{
+                new DateTime(2013,1,1),
+                new DateTime(2013,2,2),
+                new DateTime(2013,3,3)
+            };
+            var culture = System.Globalization.CultureInfo.CreateSpecificCulture("en-US");
+            Console.WriteLine(days.ConcatWith(" / ", "D", culture));
+            
         }
     }
 }

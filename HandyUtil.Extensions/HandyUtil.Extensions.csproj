@@ -44,11 +44,6 @@
   <ItemGroup>
     <Compile Include="System\ByteArrayExt.cs" />
     <Compile Include="System\Linq\EnumerableExt.cs" />
-    <Compile Include="System\Linq\EnumerableExt.t4.cs">
-      <DependentUpon>EnumerableExt.t4.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\IO\StreamExt.cs" />
     <Compile Include="System\StringExt.cs" />
@@ -59,10 +54,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="System\Linq\EnumerableExt.t4.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>EnumerableExt.t4.cs</LastGenOutput>
-    </None>
     <None Include="System\StringExt.t4.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>StringExt.t4.cs</LastGenOutput>
