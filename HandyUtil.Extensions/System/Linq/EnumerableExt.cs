@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HandyUtil.Extensions.System.Linq
 {
@@ -10,6 +8,7 @@ namespace HandyUtil.Extensions.System.Linq
     {
         public static string ConcatWith<T>(this IEnumerable<T> source, string separator)
         {
+           
             return string.Join<T>(separator, source);
         }
 
@@ -18,61 +17,91 @@ namespace HandyUtil.Extensions.System.Linq
             return string.Join(separator, source.Select(value => value.ToString(format, provider)));
         }
 
-        public static IEnumerable<TResult> Zip<T1, T2, TResult>(this IEnumerable<T1> left, IEnumerable<T2> right,
-            Func<T1, T2, TResult> selector, T1 defaultL, T2 defaultR)
+        public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second,
+            Func<TFirst, TSecond, TResult> resultSelector, TFirst default1st, TSecond default2nd)
         {
-            using (var enumeratorL = left.GetEnumerator())
-            using (var enumeratorR = right.GetEnumerator())
+            if (first == null)
+            { throw new ArgumentNullException("first"); }
+            if (second == null)
+            { throw new ArgumentNullException("second"); }
+            if (resultSelector == null)
+            { throw new ArgumentNullException("selector"); }
+
+            return _Zip(first, second, resultSelector, default1st, default2nd);
+        }
+
+        private static IEnumerable<TResult> _Zip<TFirst, TSecond, TResult>(IEnumerable<TFirst> first, IEnumerable<TSecond> second,
+            Func<TFirst, TSecond, TResult> resultSelector, TFirst default1st, TSecond default2nd)
+        {
+            using (var enumerator1 = first.GetEnumerator())
+            using (var enumerator2 = second.GetEnumerator())
             {
-                T1 valueL;
-                T2 valueR;
+                TFirst value1st;
+                TSecond value2nd;
                 while (true)
                 {
-                    var hasValueL = enumeratorL.MoveNext();
-                    var hasValueR = enumeratorR.MoveNext();
-                    if (!hasValueL && !hasValueR)
+                    var hasValue1st = enumerator1.MoveNext();
+                    var hasValue2nd = enumerator2.MoveNext();
+                    if (!hasValue1st && !hasValue2nd)
                     { yield break; }
-                    valueL = hasValueL ? enumeratorL.Current : defaultL;
-                    valueR = hasValueR ? enumeratorR.Current : defaultR;
-                    yield return selector(valueL, valueR);
+                    value1st = hasValue1st ? enumerator1.Current : default1st;
+                    value2nd = hasValue2nd ? enumerator2.Current : default2nd;
+                    yield return resultSelector(value1st, value2nd);
                 }
             }
         }
 
-        public static IEnumerable<TResult> Zip<T1, T2, TResult>(this IEnumerable<T1> left, IEnumerable<T2> right,
-            Func<T1, T2, TResult> selector, Func<int, T1> followingSelectorL, Func<int, T2> followingSelectorR)
+        public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second,
+            Func<int, TFirst, TSecond, TResult> resultSelector, Func<int, TFirst> followingSelector1st, Func<int, TSecond> followingSelector2nd)
         {
-            using (var eL = left.GetEnumerator())
-            using (var eR = right.GetEnumerator())
+            if (first == null)
+            { throw new ArgumentNullException("first"); }
+            if (second == null)
+            { throw new ArgumentNullException("second"); }
+            if (resultSelector == null)
+            { throw new ArgumentNullException("selector"); }
+            if (followingSelector1st == null)
+            { throw new ArgumentNullException("followingSelector1st"); }
+            if (followingSelector2nd == null)
+            { throw new ArgumentNullException("followingSelector2nd"); }
+            
+            return _Zip(first, second, resultSelector, followingSelector1st, followingSelector2nd);
+        }
+
+        private static IEnumerable<TResult> _Zip<TFirst, TSecond, TResult>(IEnumerable<TFirst> first, IEnumerable<TSecond> second,
+            Func<int, TFirst, TSecond, TResult> resultSelector, Func<int, TFirst> followingSelector1st, Func<int, TSecond> followingSelector2nd)
+        {
+            using (var e1st = first.GetEnumerator())
+            using (var e2nd = second.GetEnumerator())
             {
-                T1 valueL;
-                T2 valueR;
+                TFirst value1st;
+                TSecond value2nd;
                 int count = 0;
                 while (true)
                 {
-                    var hasValueL = eL.MoveNext();
-                    var hasValueR = eR.MoveNext();
+                    var hasValue1st = e1st.MoveNext();
+                    var hasValue2nd = e2nd.MoveNext();
 
-                    if (!hasValueL && !hasValueR)
+                    if (!hasValue1st && !hasValue2nd)
                     {
                         yield break;
                     }
-                    else if (!hasValueL)
+                    else if (!hasValue1st)
                     {
-                        valueL = followingSelectorL(count);
-                        valueR = eR.Current;
+                        value1st = followingSelector1st(count);
+                        value2nd = e2nd.Current;
                     }
-                    else if (!hasValueR)
+                    else if (!hasValue2nd)
                     {
-                        valueL = eL.Current;
-                        valueR = followingSelectorR(count);
+                        value1st = e1st.Current;
+                        value2nd = followingSelector2nd(count);
                     }
                     else
                     {
-                        valueL = eL.Current;
-                        valueR = eR.Current;
+                        value1st = e1st.Current;
+                        value2nd = e2nd.Current;
                     }
-                    yield return selector(valueL, valueR);
+                    yield return resultSelector(count, value1st, value2nd);
                     count++;
                 }
             }

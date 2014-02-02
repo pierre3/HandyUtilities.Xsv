@@ -12,7 +12,7 @@ namespace HandyUtil.Text.Xsv
 
     public partial class XsvDataRow : IDictionary<string, XsvField>
     {
-        protected Dictionary<string, XsvField> _items;
+        protected IDictionary<string, XsvField> _items;
 
         public XsvDataRow()
         {
@@ -31,8 +31,9 @@ namespace HandyUtil.Text.Xsv
 
         public void SetFields(IEnumerable<string> columnHeader, IEnumerable<string> row, string defaultColumnName)
         {
-            _items = columnHeader.Zip(row, (a, b) => new { Key = a, Value = new XsvField(b) },
+            _items = columnHeader.Zip(row, (n, a, b) => new { Key = a, Value = new XsvField(b) },
                 n => defaultColumnName + n, _ => "").ToDictionary(kv => kv.Key, kv => kv.Value);
+
             AttachFields();
         }
 
@@ -54,7 +55,7 @@ namespace HandyUtil.Text.Xsv
             return _items.ConcatWith(", ");
         }
 
-        #region Implements of IDictionary<string, XsvField> Interface
+        #region Implements of IDictionary<XsvHeader, XsvField> Interface
 
         public void Add(string key, XsvField value)
         {

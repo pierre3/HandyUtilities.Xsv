@@ -35,7 +35,7 @@ namespace HendyUtil.ExtensionsTest
             var s = new string[] { "first", "second", "third", "fourth", "fifth", "sixth", "seventh" };
             var i = Enumerable.Range(0, 10);
 
-            var actual = s.Zip(i, (str, num) => new { str, num }, n => "follower_" + n, _ => default(int)).ToArray();
+            var actual = s.Zip(i, (_, str, num) => new { str, num }, n => "follower_" + n, _ => default(int)).ToArray();
             Console.WriteLine(actual.ConcatWith(","));
 
             var expected = new[]

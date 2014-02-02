@@ -50,7 +50,7 @@ namespace Utility.TextTest
             Console.WriteLine(testData);
             Console.WriteLine("");
 
-            using (var reader = new System.IO.StringReader(testData))
+            using (var reader = new XsvReader(new System.IO.StringReader(testData)))
             {
                 var target = new XsvData<XsvDataRow>(new[] { sep, sep2 });
                 target.Read(reader, true);
@@ -102,7 +102,7 @@ namespace Utility.TextTest
                 this.船種 = this["船種"].AsString(defaultValue:"不明");
                 this.品名 = this["品名"].AsString(defaultValue:"名無し");
                 this.税込価格 = this["税込価格"].AsInt32(defaultValue:-1);
-                this.本体価格 = this["本体価格"].AsInt32(defaultValue:-1);
+                this.本体価格 = this["本体価格"].AsInt32(numberStyles:System.Globalization.NumberStyles.Currency, defaultValue:-1);
                 this.メーカー = this["メーカー"].AsEnum<Maker>(defaultValue:Maker.UNKNOWN);
             }
             protected override void UpdateFields()
@@ -132,7 +132,7 @@ namespace Utility.TextTest
             };
 
             var target = new XsvData(new[] { "," });
-            using (var reader = new System.IO.StringReader(data))
+            using (var reader = new XsvReader(new System.IO.StringReader(data)))
             {
                 target.Read(reader, headerExists: true);
             }
@@ -143,7 +143,7 @@ namespace Utility.TextTest
                 Assert.AreEqual(x.exp.船種, x.row["船種"].AsString());
                 Assert.AreEqual(x.exp.品名, x.row["品名"].AsString());
                 Assert.AreEqual(x.exp.税込価格, x.row["税込価格"].AsInt32());
-                Assert.AreEqual(x.exp.本体価格, x.row["本体価格"].AsInt32());
+                Assert.AreEqual(x.exp.本体価格, x.row["本体価格"].AsInt32(System.Globalization.NumberStyles.Currency));
                 Assert.AreEqual(x.exp.メーカー, x.row["メーカー"].AsEnum<Maker>());
             }
         }
@@ -169,7 +169,7 @@ namespace Utility.TextTest
             };
 
             var target = new XsvData<ShipModelDataRow>(new[] { "," });
-            using (var reader = new System.IO.StringReader(data))
+            using (var reader = new XsvReader(new System.IO.StringReader(data)))
             {
                 target.Read(reader, true);
             }

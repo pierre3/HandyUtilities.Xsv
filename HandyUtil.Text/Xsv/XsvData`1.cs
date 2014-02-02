@@ -16,14 +16,14 @@ namespace HandyUtil.Text.Xsv
         public ICollection<string> Delimiters { get; protected set; }
         public string DefaultColumnName { set; get; }
 
-        public XsvData(ICollection<string> delimiters)
+        public XsvData(ICollection<string> delimiters, string defaultColumnName = "_column_")
         {
             if (delimiters == null || delimiters.Count() == 0)
             { throw new ArgumentException("delimiters"); }
 
             this._rows = new List<T>();
             this.Delimiters = delimiters;
-            this.DefaultColumnName = "_column_";
+            this.DefaultColumnName = defaultColumnName;
         }
 
         public XsvData(IList<T> rows, ICollection<string> delimiters)
@@ -32,44 +32,80 @@ namespace HandyUtil.Text.Xsv
             this._rows = rows;
         }
 
-        public void Read(TextReader reader, bool headerExists, IEnumerable<string> headerStrings = null)
+        public async Task<IDisposable> ReadAsyncObservable(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null,
+            Action<Exception> OnError = null, Action OnCompleded = null)
         {
-            if (reader == null)
-            { throw new ArgumentNullException("reader"); }
+            if (xsvReader == null)
+            { throw new ArgumentNullException("xsvReader"); }
 
             _rows.Clear();
-            IEnumerable<string> header = null;
-            while (true)
+
+            var header = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
+            return xsvReader.AsObservable(Delimiters).Subscribe(
+                row =>
+                {
+                    _rows.Add(CreateXsvRow(header, row));
+                },
+                OnError ?? (_ => { }),
+                OnCompleded ?? (() => { }));
+        }
+
+        protected async Task<IEnumerable<string>> ReadHeaderAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings)
+        {
+            var header = headerStrings ?? Enumerable.Empty<string>();
+            if (headerExists)
             {
-                var line = reader.ReadLine();
-                if (line == null)
-                { break; }
-
-                var tokens = Tokenize(line, this.Delimiters, () =>
-                {
-                    return reader.ReadLine() ?? string.Empty;
-                });
-
-                if (header == null)
-                {
-                    if (headerExists)
-                    {
-                        header = tokens.ToArray();
-                        continue;
-                    }
-                    if (headerStrings == null)
-                    {
-                        header = Enumerable.Empty<string>();
-                    }
-                    else
-                    {
-                        header = headerStrings;
-                    }
-                }
-
-                _rows.Add(CreateXsvRow(header, tokens));
+                header = await xsvReader.ReadXsvLineAsync(Delimiters);
             }
+            return header;
+        }
 
+        protected IEnumerable<string> ReadHeader(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings)
+        {
+            var header = headerStrings ?? Enumerable.Empty<string>();
+            if (headerExists)
+            {
+                header = xsvReader.ReadXsvLine(Delimiters);
+            }
+            return header;
+        }
+
+        public async Task ReadAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings=null){
+            if (xsvReader == null)
+            { throw new ArgumentNullException("xsvReader"); }
+            _rows.Clear();
+            
+            var header = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
+            var rows = await xsvReader.ReadXsvToEndAsync(Delimiters);
+            foreach (var row in rows)
+            {
+                _rows.Add(CreateXsvRow(header, row));
+            }
+        }
+
+        public void Read(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        {
+            if (xsvReader == null)
+            { throw new ArgumentNullException("xsvReader"); }
+            _rows.Clear();
+
+            var header = ReadHeader(xsvReader, headerExists, headerStrings);
+            var rows = xsvReader.ReadXsvToEnd(Delimiters);
+            foreach (var row in rows)
+            {
+                _rows.Add(CreateXsvRow(header, row));
+            }
+        }
+
+        public void Read(Stream stream, bool headerExists, IEnumerable<string> headerStrings = null, Encoding encoding = null)
+        {
+            if(stream==null)
+            { throw new ArgumentNullException("stream"); }
+
+            using (var xsvReader = new XsvReader(stream, encoding))
+            {
+                Read(xsvReader, headerExists, headerStrings);
+            }
         }
 
         public void Write(TextWriter writer, bool headerExists, bool updateFields = true, string delimiter = null)
@@ -113,95 +149,6 @@ namespace HandyUtil.Text.Xsv
             }
         }
 
-        protected static IEnumerable<string> Tokenize(string line, ICollection<string> delimiters, Func<string> followingLineSelector)
-        {
-            if (string.IsNullOrEmpty(line))
-            { yield break; }
-
-            var hasWsDelimiter = delimiters.Any(s => s.TrimStart().Length != s.Length);
-            var state = TokenState.Empty;
-            string token = "";
-
-            foreach (var c in line)
-            {
-            RESWITCH:
-                switch (state)
-                {
-                    case TokenState.Empty:
-                    case TokenState.AfterSeparator:
-                        state = TokenState.Empty;
-                        if (!delimiters.Any(s => s.StartsWith(c.ToString())) && char.IsWhiteSpace(c))
-                        { break; }
-
-                        if (c == '"')
-                        {
-                            state = TokenState.QuotedField;
-                            token += c;
-                            break;
-                        }
-                        state = TokenState.NormalField;
-                        goto RESWITCH;
-
-                    case TokenState.NormalField:
-                        token += c;
-                        var delimiter = delimiters.FirstOrDefault(s => token.ToString().EndsWith(s));
-                        if (delimiter != null)
-                        {
-                            yield return token.Replace(delimiter, "").TrimEnd();
-                            state = TokenState.AfterSeparator;
-                            token = "";
-                        }
-                        break;
-
-                    case TokenState.QuotedField:
-                        token += c;
-                        if (c == '"')
-                        {
-                            state = TokenState.EndQuote;
-                        }
-                        break;
-
-                    case TokenState.EndQuote:
-                        if (c == '"')
-                        {
-                            token += c;
-                            state = TokenState.QuotedField;
-                            break;
-                        }
-
-                        token = token.Substring(1, token.Length - 2).Replace("\"\"", "\"");
-                        state = TokenState.NormalField;
-
-                        goto RESWITCH;
-                }
-
-            }
-            if (state == TokenState.QuotedField)
-            {
-                var next = Tokenize(token + Environment.NewLine + followingLineSelector(),
-                    delimiters, followingLineSelector);
-                foreach (var s in next)
-                {
-                    yield return s;
-                }
-            }
-            else if (token != string.Empty || state == TokenState.AfterSeparator)
-            {
-
-                yield return (state == TokenState.EndQuote)
-                    ? token.Substring(1, token.Length - 2).Replace("\"\"", "\"")
-                    : token;
-            }
-
-        }
-
-        private enum TokenState
-        {
-            Empty,
-            AfterSeparator,
-            NormalField,
-            QuotedField,
-            EndQuote
-        }
+       
     }
 }

@@ -37,6 +37,18 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.2\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,6 +61,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HandyUtil.ExtensionsTest\HandyUtil.ExtensionsTest.csproj">
+      <Project>{a26daa31-2358-4928-b723-0962c3be2fb5}</Project>
+      <Name>HandyUtil.ExtensionsTest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HandyUtil.Extensions\HandyUtil.Extensions.csproj">
+      <Project>{74bc3a81-685c-4ca5-9bcb-5dfec8bc1b89}</Project>
+      <Name>HandyUtil.Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HandyUtil.Text\HandyUtil.Text.csproj">
+      <Project>{730dcff5-73a3-453f-b087-eafef1bba1f7}</Project>
+      <Name>HandyUtil.Text</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
