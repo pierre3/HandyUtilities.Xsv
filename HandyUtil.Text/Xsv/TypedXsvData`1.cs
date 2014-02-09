@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 namespace HandyUtil.Text.Xsv
 {
     public class TypedXsvData<T> : XsvData<XsvDataRow<T>> where T : new()

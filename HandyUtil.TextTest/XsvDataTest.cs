@@ -67,7 +67,7 @@ namespace Utility.TextTest
                 var sb = new StringBuilder();
                 using (var writer = new StringWriter(sb))
                 {
-                    target.Write(writer, true);
+                    target.Write(writer);
                 }
                 Console.WriteLine("----------");
                 Console.WriteLine(sb.ToString());

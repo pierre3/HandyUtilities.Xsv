@@ -1,16 +1,13 @@
-﻿using System;
+﻿using HandyUtil.Extensions.System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HandyUtil.Extensions.System;
 
 namespace HandyUtil.Text.Xsv
 {
     public partial struct XsvField : IEquatable<XsvField>
     {
         public string Source { private set; get; }
-        
+
         public XsvField(object value)
             : this()
         {
@@ -32,7 +29,7 @@ namespace HandyUtil.Text.Xsv
         {
             return string.IsNullOrEmpty(Source) ? defaultValue : Source;
         }
-        
+
         public override string ToString()
         {
             return Source;
@@ -43,11 +40,12 @@ namespace HandyUtil.Text.Xsv
             return Source.MakeXsvField(delimiters);
         }
 
-        public static explicit operator string(XsvField field){
+        public static explicit operator string(XsvField field)
+        {
             return field.AsString();
         }
 
-        public TEnum AsEnum<TEnum>(bool ignoreCase = true) where TEnum:struct
+        public TEnum AsEnum<TEnum>(bool ignoreCase = true) where TEnum : struct
         {
             return Source.ToEnum<TEnum>(ignoreCase);
         }
@@ -103,7 +101,7 @@ namespace HandyUtil.Text.Xsv
             }
             try
             {
-                return Enum.Parse(enumType,Source);
+                return Enum.Parse(enumType, Source);
             }
             catch (ArgumentException)
             {
@@ -120,7 +118,8 @@ namespace HandyUtil.Text.Xsv
             return this.Source == other.Source;
         }
 
-        public static bool operator == (XsvField a, XsvField b){
+        public static bool operator ==(XsvField a, XsvField b)
+        {
             return a.Equals(b);
         }
 
@@ -128,7 +127,7 @@ namespace HandyUtil.Text.Xsv
         {
             return !(a == b);
         }
-                
+
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())

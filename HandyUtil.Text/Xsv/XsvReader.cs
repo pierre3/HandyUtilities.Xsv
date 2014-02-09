@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using System.Reactive.Linq;
-using System.Threading;
 namespace HandyUtil.Text.Xsv
 {
     public class XsvReader : IDisposable

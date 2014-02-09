@@ -5,9 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 
 namespace HandyUtilConsole
 {

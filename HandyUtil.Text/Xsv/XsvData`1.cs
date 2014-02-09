@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
+using System.Collections.ObjectModel;
+using System.Collections;
 
 namespace HandyUtil.Text.Xsv
 {
-
     public class XsvData<T> where T : XsvDataRow, new()
     {
+        protected XsvColumnHeaders<T> _columnHeaders;
         protected IList<T> _rows;
 
-        public IList<T> Rows { get { return _rows; } }
+        public IEnumerable<KeyValuePair<string, XsvField>> ColumnHeaders
+        {
+            get { return _columnHeaders.AsEnumerable(); }
+        }
+
+        public IList<T> Rows
+        {
+            get { return _rows; }
+        }
+
         public ICollection<string> Delimiters { get; protected set; }
         public string DefaultColumnName { set; get; }
 
@@ -40,46 +51,49 @@ namespace HandyUtil.Text.Xsv
 
             _rows.Clear();
 
-            var header = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
+            var headers = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
+            _columnHeaders = new XsvColumnHeaders<T>(headers);
             return xsvReader.AsObservable(Delimiters).Subscribe(
                 row =>
                 {
-                    _rows.Add(CreateXsvRow(header, row));
+                    _rows.Add(CreateXsvRow(headers, row));
                 },
                 OnError ?? (_ => { }),
                 OnCompleded ?? (() => { }));
         }
 
-        protected async Task<IEnumerable<string>> ReadHeaderAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings)
+        protected async Task<IList<string>> ReadHeaderAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings)
         {
             var header = headerStrings ?? Enumerable.Empty<string>();
             if (headerExists)
             {
                 header = await xsvReader.ReadXsvLineAsync(Delimiters);
             }
-            return header;
+            return header.ToList();
         }
 
-        protected IEnumerable<string> ReadHeader(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings)
+        protected IList<string> ReadHeader(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings)
         {
             var header = headerStrings ?? Enumerable.Empty<string>();
             if (headerExists)
             {
                 header = xsvReader.ReadXsvLine(Delimiters);
             }
-            return header;
+            return header.ToList();
         }
 
-        public async Task ReadAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings=null){
+        public async Task ReadAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        {
             if (xsvReader == null)
             { throw new ArgumentNullException("xsvReader"); }
             _rows.Clear();
-            
-            var header = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
+
+            var headers = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
+            _columnHeaders = new XsvColumnHeaders<T>(headers);
             var rows = await xsvReader.ReadXsvToEndAsync(Delimiters);
             foreach (var row in rows)
             {
-                _rows.Add(CreateXsvRow(header, row));
+                _rows.Add(CreateXsvRow(headers, row));
             }
         }
 
@@ -89,17 +103,18 @@ namespace HandyUtil.Text.Xsv
             { throw new ArgumentNullException("xsvReader"); }
             _rows.Clear();
 
-            var header = ReadHeader(xsvReader, headerExists, headerStrings);
+            var headers = ReadHeader(xsvReader, headerExists, headerStrings);
+            _columnHeaders = new XsvColumnHeaders<T>(headers);
             var rows = xsvReader.ReadXsvToEnd(Delimiters);
             foreach (var row in rows)
             {
-                _rows.Add(CreateXsvRow(header, row));
+                _rows.Add(CreateXsvRow(headers, row));
             }
         }
 
         public void Read(Stream stream, bool headerExists, IEnumerable<string> headerStrings = null, Encoding encoding = null)
         {
-            if(stream==null)
+            if (stream == null)
             { throw new ArgumentNullException("stream"); }
 
             using (var xsvReader = new XsvReader(stream, encoding))
@@ -108,25 +123,41 @@ namespace HandyUtil.Text.Xsv
             }
         }
 
-        public void Write(TextWriter writer, bool headerExists, bool updateFields = true, string delimiter = null)
+        public void Write(TextWriter writer, string delimiter = null, WriterSettings settings = null)
         {
-            if (updateFields)
+            if (settings == null)
             {
-                UpdateFields();
+                settings = WriterSettings.Default;
             }
-
             if (delimiter == null)
             {
                 delimiter = Delimiters.First();
             }
-            if (headerExists)
+
+            if (settings.SynchronisesColumns)
             {
-                writer.WriteLine(Rows.First().OutputHeaders(Delimiters, delimiter));
+                SynchronizeColumns();
             }
+
+            if (settings.UpdateFields)
+            {
+                UpdateFields();
+            }
+
+            if (settings.OutputsHeader)
+            {
+                writer.WriteLine(_columnHeaders.OutputString(Delimiters, delimiter));
+            }
+
             foreach (var row in Rows)
             {
                 writer.WriteLine(row.OutputFields(Delimiters, delimiter));
             }
+        }
+
+        public void SynchronizeColumns()
+        {
+            _rows = _columnHeaders.SynchronizeColumns(_rows).ToList();
         }
 
         public void Update()
@@ -149,6 +180,42 @@ namespace HandyUtil.Text.Xsv
             }
         }
 
-       
+        public void SetColumnHeaders(IEnumerable<KeyValuePair<string, XsvField>> source)
+        {
+            _columnHeaders = new XsvColumnHeaders<T>(source);
+        }
+
+        public void AddColumnHeader(string name, XsvField defaultField)
+        {
+            _columnHeaders.Add(name, defaultField);
+        }
+
+        public bool RemoveColumnHeader(string name)
+        {
+            return _columnHeaders.Remove(name);
+        }
+
+        public bool RemoveColumnHeader(KeyValuePair<string, XsvField> item)
+        {
+            return _columnHeaders.Remove(item);
+        }
+
+        public void InsertColumnHeader(int index, string name, XsvField defaultField)
+        {
+            (_columnHeaders as IList<KeyValuePair<string, XsvField>>).Insert(index, new KeyValuePair<string, XsvField>(name, defaultField));
+        }
+
+        public class WriterSettings
+        {
+            public static readonly WriterSettings Default = new WriterSettings()
+            {
+                OutputsHeader = true,
+                UpdateFields = true,
+                SynchronisesColumns = true
+            };
+            public bool OutputsHeader { set; get; }
+            public bool UpdateFields { set; get; }
+            public bool SynchronisesColumns { set; get; }
+        }
     }
 }

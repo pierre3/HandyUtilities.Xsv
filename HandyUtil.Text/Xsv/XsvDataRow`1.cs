@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HandyUtil.Extensions.System.Linq;
-using HandyUtil.Extensions.System;
-using System.Reflection;
 using System.Globalization;
+using System.Reflection;
 
 namespace HandyUtil.Text.Xsv
 {

@@ -1,64 +1,51 @@
-﻿using HandyUtil.Extensions.System;
-using HandyUtil.Extensions.System.Linq;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using HandyUtil.Extensions.System;
+using HandyUtil.Extensions.System.Linq;
 
 namespace HandyUtil.Text.Xsv
 {
-
-    public partial class XsvDataRow : IDictionary<string, XsvField>
+    public class XsvColumnHeaders<T> : IDictionary<string, XsvField> where T:XsvDataRow, new()
     {
-        protected IDictionary<string, XsvField> _items;
+        protected T _items;
 
-        public XsvDataRow()
+        public XsvColumnHeaders(IEnumerable<string> source)
         {
-            _items = new Dictionary<string, XsvField>();
+            this._items = new T();
+            this._items.SetFields(source, Enumerable.Empty<string>(), "unnamed");
         }
 
-        protected virtual void AttachFields()
-        { }
-
-        protected virtual void UpdateFields()
-        { }
-
-        public void Update()
+        public XsvColumnHeaders(IEnumerable<KeyValuePair<string,XsvField>> source)
         {
-            UpdateFields();
+            this._items = new T();
+            this._items.SetFields(source);
         }
 
-        public void SetFields(IEnumerable<string> columnHeader, IEnumerable<string> row, string defaultColumnName)
-        {
-            _items = columnHeader.Zip(row, (n, a, b) => new { Key = a, Value = new XsvField(b) },
-                n => defaultColumnName + n, _ => "").ToDictionary(kv => kv.Key, kv => kv.Value);
-
-            AttachFields();
-        }
-
-        public void SetFields(IEnumerable<KeyValuePair<string, XsvField>> collection)
-        {
-            _items = new Dictionary<string, XsvField>(collection.ToDictionary(item => item.Key, item => item.Value));
-            AttachFields();
-        }
-        
-        public string OutputHeaders(IEnumerable<string> delimiters, string delimiter)
+        public string OutputString(IEnumerable<string> delimiters, string delimiter) 
         {
             return _items.Keys.Select(head => head.MakeXsvField(delimiters)).ConcatWith(delimiter);
         }
 
-        public string OutputFields(IEnumerable<string> delimiters, string delimiter, bool updateFields = true)
+        public IEnumerable<T> SynchronizeColumns(IEnumerable<T> rows)
         {
-            if (updateFields)
-            { UpdateFields(); }
-
-            return _items.Values.Select(field => field.ToString(delimiters)).ConcatWith(delimiter);
+            foreach (var row in rows)
+            {
+                var nextRow = _items.Select(header =>
+                {
+                    if (row.ContainsKey(header.Key))
+                    {
+                        return new KeyValuePair<string, XsvField>(header.Key, row[header.Key]);
+                    }
+                    return new KeyValuePair<string, XsvField>(header.Key, header.Value);
+                });
+                row.SetFields(nextRow);
+                yield return row;
+            }
         }
-
-        public override string ToString()
-        {
-            return _items.ConcatWith(", ");
-        }
-
-        #region Implements of IDictionary<XsvHeader, XsvField> Interface
 
         public void Add(string key, XsvField value)
         {
@@ -104,7 +91,7 @@ namespace HandyUtil.Text.Xsv
 
         public void Add(KeyValuePair<string, XsvField> item)
         {
-            ((ICollection<KeyValuePair<string, XsvField>>)_items).Add(item);
+            _items.Add(item);
         }
 
         public void Clear()
@@ -119,7 +106,7 @@ namespace HandyUtil.Text.Xsv
 
         public void CopyTo(KeyValuePair<string, XsvField>[] array, int arrayIndex)
         {
-            ((ICollection<KeyValuePair<string, XsvField>>)_items).CopyTo(array, arrayIndex);
+            _items.CopyTo(array, arrayIndex);
         }
 
         public int Count
@@ -129,12 +116,12 @@ namespace HandyUtil.Text.Xsv
 
         public bool IsReadOnly
         {
-            get { return false; }
+            get { return _items.IsReadOnly; }
         }
 
         public bool Remove(KeyValuePair<string, XsvField> item)
         {
-            return ((ICollection<KeyValuePair<string, XsvField>>)_items).Remove(item);
+            return _items.Remove(item);
         }
 
         public IEnumerator<KeyValuePair<string, XsvField>> GetEnumerator()
@@ -144,8 +131,7 @@ namespace HandyUtil.Text.Xsv
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return ((System.Collections.IEnumerable)_items).GetEnumerator();
+            return GetEnumerator();
         }
-        #endregion
     }
 }

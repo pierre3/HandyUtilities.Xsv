@@ -174,7 +174,7 @@ namespace HendyUtil.TextTest
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
             {
-                csv.Write(writer, true, true, ",");
+                csv.Write(writer, ",");
                 Assert.AreEqual(data, sb.ToString());
             }
         }

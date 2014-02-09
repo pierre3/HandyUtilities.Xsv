@@ -65,7 +65,7 @@
       <DependentUpon>XsvField.t4.tt</DependentUpon>
     </Compile>
     <Compile Include="Xsv\XsvFieldBindingEventArgs.cs" />
-    <Compile Include="Xsv\XsvHeader.cs" />
+    <Compile Include="Xsv\XsvColumnHeaders`1.cs" />
     <Compile Include="Xsv\XsvReader.cs" />
     <Compile Include="Xsv\XsvReaderException.cs" />
     <None Include="packages.config" />
