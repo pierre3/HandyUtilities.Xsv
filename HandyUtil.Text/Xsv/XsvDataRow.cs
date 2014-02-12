@@ -36,8 +36,7 @@ namespace HandyUtil.Text.Xsv
 
         public void SetFields(IEnumerable<KeyValuePair<string, XsvField>> collection)
         {
-            _items = new Dictionary<string, XsvField>(collection.ToDictionary(item => item.Key, item => item.Value));
-            AttachFields();
+            _items = collection.ToDictionary(item => item.Key, item => item.Value);
         }
         
         public string OutputHeaders(IEnumerable<string> delimiters, string delimiter)
@@ -45,9 +44,9 @@ namespace HandyUtil.Text.Xsv
             return _items.Keys.Select(head => head.MakeXsvField(delimiters)).ConcatWith(delimiter);
         }
 
-        public string OutputFields(IEnumerable<string> delimiters, string delimiter, bool updateFields = true)
+        public string OutputFields(IEnumerable<string> delimiters, string delimiter, bool FieldUpdates = true)
         {
-            if (updateFields)
+            if (FieldUpdates)
             { UpdateFields(); }
 
             return _items.Values.Select(field => field.ToString(delimiters)).ConcatWith(delimiter);

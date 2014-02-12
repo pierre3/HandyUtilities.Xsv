@@ -1,96 +1,80 @@
 ﻿
+using HandyUtil.Extensions.System;
+using HandyUtil.Extensions.System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HandyUtil.Extensions.System;
-using HandyUtil.Extensions.System.Linq;
 
 namespace HandyUtil.Text.Xsv
 {
-    public class XsvColumnHeaders<T> : IDictionary<string, XsvField> where T:XsvDataRow, new()
+    public class XsvColumnHeaders : IList<string>
     {
-        protected T _items;
+        protected IList<string> _items;
 
         public XsvColumnHeaders(IEnumerable<string> source)
         {
-            this._items = new T();
-            this._items.SetFields(source, Enumerable.Empty<string>(), "unnamed");
-        }
-
-        public XsvColumnHeaders(IEnumerable<KeyValuePair<string,XsvField>> source)
-        {
-            this._items = new T();
-            this._items.SetFields(source);
+            _items = source.Distinct().ToList();
         }
 
         public string OutputString(IEnumerable<string> delimiters, string delimiter) 
         {
-            return _items.Keys.Select(head => head.MakeXsvField(delimiters)).ConcatWith(delimiter);
+            return _items.Select(item=>item.MakeXsvField(delimiters)).ConcatWith(delimiter);
         }
 
-        public IEnumerable<T> SynchronizeColumns(IEnumerable<T> rows)
+        public IEnumerable<T> SynchronizeColumns<T>(IEnumerable<T> rows) where T:XsvDataRow
         {
             foreach (var row in rows)
             {
                 var nextRow = _items.Select(header =>
                 {
-                    if (row.ContainsKey(header.Key))
+                    if (row.ContainsKey(header))
                     {
-                        return new KeyValuePair<string, XsvField>(header.Key, row[header.Key]);
+                        return new KeyValuePair<string, XsvField>(header, row[header]);
                     }
-                    return new KeyValuePair<string, XsvField>(header.Key, header.Value);
+                    return new KeyValuePair<string, XsvField>(header, new XsvField(""));
                 });
                 row.SetFields(nextRow);
                 yield return row;
             }
         }
 
-        public void Add(string key, XsvField value)
+        public int IndexOf(string item)
         {
-            _items.Add(key, value);
+            return _items.IndexOf(item);
         }
 
-        public bool ContainsKey(string key)
+        public void Insert(int index, string item)
         {
-            return _items.ContainsKey(key);
+            if (_items.Contains(item))
+            {
+                throw new ArgumentException("Same key already exists.", item);
+            }
+            _items.Insert(index, item);
         }
 
-        public ICollection<string> Keys
+        public void RemoveAt(int index)
         {
-            get { return _items.Keys; }
+            _items.RemoveAt(index);
         }
 
-        public bool Remove(string key)
-        {
-            return _items.Remove(key);
-        }
-
-        public bool TryGetValue(string key, out XsvField value)
-        {
-            return _items.TryGetValue(key, out value);
-        }
-
-        public ICollection<XsvField> Values
-        {
-            get { return _items.Values; }
-        }
-
-        public XsvField this[string key]
+        public string this[int index]
         {
             get
             {
-                return _items[key];
+                return _items[index];
             }
             set
             {
-                _items[key] = value;
+                _items[index] = value;
             }
         }
 
-        public void Add(KeyValuePair<string, XsvField> item)
+        public void Add(string item)
         {
+            if (_items.Contains(item))
+            {
+                throw new ArgumentException("Same key already exists.", item);
+            }
             _items.Add(item);
         }
 
@@ -99,12 +83,12 @@ namespace HandyUtil.Text.Xsv
             _items.Clear();
         }
 
-        public bool Contains(KeyValuePair<string, XsvField> item)
+        public bool Contains(string item)
         {
             return _items.Contains(item);
         }
 
-        public void CopyTo(KeyValuePair<string, XsvField>[] array, int arrayIndex)
+        public void CopyTo(string[] array, int arrayIndex)
         {
             _items.CopyTo(array, arrayIndex);
         }
@@ -119,12 +103,12 @@ namespace HandyUtil.Text.Xsv
             get { return _items.IsReadOnly; }
         }
 
-        public bool Remove(KeyValuePair<string, XsvField> item)
+        public bool Remove(string item)
         {
             return _items.Remove(item);
         }
 
-        public IEnumerator<KeyValuePair<string, XsvField>> GetEnumerator()
+        public IEnumerator<string> GetEnumerator()
         {
             return _items.GetEnumerator();
         }
