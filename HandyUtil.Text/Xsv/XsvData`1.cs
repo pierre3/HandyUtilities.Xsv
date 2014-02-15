@@ -8,6 +8,8 @@ using System.Collections;
 
 #if net40
 using System.Threading.Tasks;
+using System.Threading;
+using System.Reactive.Disposables;
 #endif
 
 namespace HandyUtil.Text.Xsv
@@ -83,7 +85,7 @@ namespace HandyUtil.Text.Xsv
             }
         }
 
-#if net40
+#if net45
         public async Task<IDisposable> ReadAsyncObservable(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null,
             Action<string[]> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
         {
@@ -94,7 +96,7 @@ namespace HandyUtil.Text.Xsv
 
             var headers = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
             _columnHeaders = new XsvColumnHeaders(headers);
-            return xsvReader.AsObservable(Delimiters).Subscribe(
+            return xsvReader.ReadXsvObservable(Delimiters).Subscribe(
                 row =>
                 {
                     _rows.Add(CreateXsvRow(headers, row));
@@ -131,8 +133,45 @@ namespace HandyUtil.Text.Xsv
                 _rows.Add(CreateXsvRow(headers, row));
             }
         }
-#endif        
-        
+#else
+#if net40
+        protected Task<IList<string>> ReadHeaderAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                var header = headerStrings ?? Enumerable.Empty<string>();
+                if (headerExists)
+                {
+                    header = xsvReader.ReadXsvLine(Delimiters);
+                }
+                return (IList<string>)header.ToList();
+            });
+        }
+
+        public Task ReadAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        {
+            if (xsvReader == null)
+            { throw new ArgumentNullException("xsvReader"); }
+            _rows.Clear();
+
+            return ReadHeaderAsync(xsvReader, headerExists, headerStrings).ContinueWith(readHeaderTask=>
+            {
+                var headers = readHeaderTask.Result;
+                _columnHeaders = new XsvColumnHeaders(headers);
+
+                return xsvReader.ReadXsvToEndAsync(Delimiters).ContinueWith(readTask =>
+                {
+                    var rows = readTask.Result;
+                    foreach (var row in rows)
+                    {
+                        _rows.Add(CreateXsvRow(headers, row));
+                    }
+                });
+            });
+        }
+#endif
+#endif
+
         public void Write(TextWriter writer, string delimiter = null, WriterSettings settings = null)
         {
             if (settings == null)

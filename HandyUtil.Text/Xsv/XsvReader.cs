@@ -7,6 +7,7 @@ using System.Text;
 #if net40
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 #endif
 
 namespace HandyUtil.Text.Xsv
@@ -176,7 +177,7 @@ namespace HandyUtil.Text.Xsv
 
         }
 
-#if net40
+#if net45
         public async Task<string> ReadLineAsync()
         {
             return await BaseReader.ReadLineAsync();
@@ -192,7 +193,7 @@ namespace HandyUtil.Text.Xsv
             return await Task.Run(() => ReadXsvToEnd(delimiters).ToList());
         }
 
-        public IObservable<string[]> AsObservable(ICollection<string> delimiters)
+        public IObservable<string[]> ReadXsvObservable(ICollection<string> delimiters)
         {
             return Observable.Create<string[]>(async (observer, cts) =>
             {
@@ -215,6 +216,23 @@ namespace HandyUtil.Text.Xsv
                 }
             });
         }
+#else
+#if net40
+        public Task<string> ReadLineAsync()
+        {
+            return Task.Factory.StartNew(() => BaseReader.ReadLine());
+        }
+
+        public Task<string[]> ReadXsvLineAsync(ICollection<string> delimiters)
+        {
+            return Task.Factory.StartNew(() => ReadXsvLine(delimiters).ToArray());
+        }
+
+        public Task<IList<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters)
+        {
+            return Task.Factory.StartNew(() => (IList<string[]>)ReadXsvToEnd(delimiters).ToList());
+        }
+#endif
 #endif
 
         private enum TokenState

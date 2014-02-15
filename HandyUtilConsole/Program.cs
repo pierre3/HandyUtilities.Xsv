@@ -29,7 +29,7 @@ four"" ";
             {
                 var header = reader.ReadXsvLine(new[] { "," });
 
-                IDisposable disposable = reader.AsObservable(new[] { "," }).Subscribe(row =>
+                IDisposable disposable = reader.ReadXsvObservable(new[] { "," }).Subscribe(row =>
                 {
                     csv.Add(header.Zip(row, (key, value) => new { key, value }).ToDictionary(a => a.key, a => a.value));
                     Console.WriteLine("OnNext");

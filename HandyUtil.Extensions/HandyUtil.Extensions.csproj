@@ -45,7 +45,6 @@
     <Compile Include="System\ByteArrayExt.cs" />
     <Compile Include="System\Linq\EnumerableExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="System\IO\StreamExt.cs" />
     <Compile Include="System\StringExt.cs" />
     <Compile Include="System\StringExt.t4.cs">
       <DependentUpon>StringExt.t4.tt</DependentUpon>

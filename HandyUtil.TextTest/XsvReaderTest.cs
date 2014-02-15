@@ -95,7 +95,7 @@ four"" ";
             }
         }
 
-#if net40
+#if net45
         [TestMethod]
         public void AsObservableTest()
         {
@@ -105,7 +105,7 @@ four"" ";
             {
                 var header = reader.ReadXsvLine(new[] { "," });
 
-                IDisposable disposable = reader.AsObservable(new[] { "," }).Subscribe(row =>
+                IDisposable disposable = reader.ReadXsvObservable(new[] { "," }).Subscribe(row =>
                 {
                     csv.Add(header.Zip(row, (key, value) => new { key, value }).ToDictionary(a => a.key, a => a.value));
                     Console.WriteLine("OnNext");
@@ -138,6 +138,25 @@ four"" ";
                 }
             }
         }
+#else
+#if net40
+        [TestMethod]
+        public void ReadXsvToEndAsyncTest()
+        {
+            using (var reader2 = new XsvReader(new StringReader(testData01)))
+            {
+                reader2.ReadXsvToEndAsync(new[] { "," }).ContinueWith(readTask =>
+                {
+                    var rows = readTask.Result;
+                    foreach (var row in rows.Zip(expected01, (l, r) => new { expected = r, actual = l }))
+                    {
+                        Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
+                        CollectionAssert.AreEqual(row.expected, row.actual);
+                    }
+                });
+            }
+        }
+#endif
 #endif
     }
 }
