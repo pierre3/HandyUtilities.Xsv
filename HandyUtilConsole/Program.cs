@@ -24,7 +24,7 @@ four"" ";
         static void Main(string[] args)
         {
             var csv = new List<Dictionary<string, string>>();
-            
+
             using (var reader = new XsvReader(new StringReader(testData01)))
             {
                 var header = reader.ReadXsvLine(new[] { "," });
@@ -51,7 +51,7 @@ four"" ";
                 disposable.Dispose();
             }
             Console.WriteLine("Disposed");
-            
+
             using (var reader2 = new XsvReader(new StringReader(testData01)))
             {
                 var task = reader2.ReadXsvToEndAsync(new[] { "," });
@@ -62,11 +62,7 @@ four"" ";
                     Console.WriteLine(".");
                 }
             }
-
             Console.ReadKey();
-
         }
-
-
     }
 }

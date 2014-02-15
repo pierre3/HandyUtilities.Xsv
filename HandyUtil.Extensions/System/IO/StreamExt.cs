@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
+#if net40
 using System.Threading.Tasks;
-using System.IO;
+#endif
 
 namespace HandyUtil.Extensions.System.IO
 {
     public static class StreamExt
     {
+#if net40
         public async static Task<byte[]> ReadBytesAsync(this Stream stream)
         { 
             var buffer = new byte[stream.Length];
             await stream.ReadAsync(buffer,0,(int)stream.Length);
             return buffer;
         }
+#endif
     }
 }

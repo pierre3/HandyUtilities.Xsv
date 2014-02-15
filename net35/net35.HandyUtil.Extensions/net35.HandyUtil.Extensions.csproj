@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{74BC3A81-685C-4CA5-9BCB-5DFEC8BC1B89}</ProjectGuid>
+    <ProjectGuid>{6DB12825-2751-4204-9022-0D45B9CD3DE7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HandyUtil.Extensions</RootNamespace>
     <AssemblyName>HandyUtil.Extensions</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -18,43 +18,48 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;net40;net45</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;net35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;net40;net45</DefineConstants>
+    <DefineConstants>TRACE;net35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="System\ByteArrayExt.cs" />
-    <Compile Include="System\Linq\EnumerableExt.cs" />
+    <Compile Include="..\..\HandyUtil.Extensions\System\ByteArrayExt.cs">
+      <Link>ByteArrayExt.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Extensions\System\IO\StreamExt.cs">
+      <Link>StreamExt.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Extensions\System\Linq\EnumerableExt.cs">
+      <Link>EnumerableExt.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Extensions\System\StringExt.cs">
+      <Link>StringExt.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="System\IO\StreamExt.cs" />
-    <Compile Include="System\StringExt.cs" />
-    <Compile Include="System\StringExt.t4.cs">
-      <DependentUpon>StringExt.t4.tt</DependentUpon>
+    <Compile Include="StringExt.t4.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <DependentUpon>StringExt.t4.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="System\StringExt.t4.tt">
+    <None Include="StringExt.t4.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>StringExt.t4.cs</LastGenOutput>
     </None>

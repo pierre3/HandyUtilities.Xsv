@@ -1,13 +1,13 @@
-﻿using System;
-using System.Text;
-using System.Linq;
+﻿using HandyUtil.Text.Xsv;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using HandyUtil.Text.Xsv;
-using HandyUtil.Text;
-using HandyUtil.Extensions.System;
+using System;
 using System.Globalization;
 using System.IO;
-using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+#if net35
+using HandyUtil.Extensions.System.Linq;
+#endif
 
 namespace HendyUtil.TextTest
 {

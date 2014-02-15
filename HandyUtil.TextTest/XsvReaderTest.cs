@@ -1,13 +1,14 @@
-﻿using HandyUtil.Extensions.System;
-using HandyUtil.Extensions.System.Linq;
+﻿using HandyUtil.Extensions.System.Linq;
 using HandyUtil.Text.Xsv;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
+#if net40
 using System.Threading.Tasks;
-using System.Reactive.Disposables;
+#endif
 
 namespace HandyUtil.TextTest
 {
@@ -70,7 +71,7 @@ four"" ";
             }
             foreach (var row in result.Zip(expected01, (l, r) => new { expected = r, actual = l }))
             {
-                Console.WriteLine(row.actual.ConcatWith("|") + "↵");
+                Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
                 CollectionAssert.AreEqual(row.expected, row.actual);
             }
         }
@@ -89,10 +90,54 @@ four"" ";
             }
             foreach (var row in result.Zip(expected02, (l, r) => new { expected = r, actual = l }))
             {
-                Console.WriteLine(row.actual.ConcatWith("|") + "↵");
+                Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
                 CollectionAssert.AreEqual(row.expected, row.actual);
             }
         }
 
+#if net40
+        [TestMethod]
+        public void AsObservableTest()
+        {
+            var csv = new List<Dictionary<string, string>>();
+
+            using (var reader = new XsvReader(new StringReader(testData01)))
+            {
+                var header = reader.ReadXsvLine(new[] { "," });
+
+                IDisposable disposable = reader.AsObservable(new[] { "," }).Subscribe(row =>
+                {
+                    csv.Add(header.Zip(row, (key, value) => new { key, value }).ToDictionary(a => a.key, a => a.value));
+                    Console.WriteLine("OnNext");
+                    Console.WriteLine(row.ConcatWith(", "));
+                },
+                e => Console.WriteLine("OnError " + e.Message),
+                () =>
+                {
+                    Console.WriteLine("OnCompleted.");
+                    foreach (var row in csv.Zip(expected01, (l, r) => new { expected = r, actual = l }))
+                    {
+                        Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
+                        CollectionAssert.AreEqual(row.expected, row.actual);
+                    }
+                });
+            }
+        }
+
+        [TestMethod]
+        public async Task ReadXsvToEndAsyncTest()
+        {
+            using (var reader2 = new XsvReader(new StringReader(testData01)))
+            {
+                var rows = await reader2.ReadXsvToEndAsync(new[] { "," });
+
+                foreach (var row in rows.Zip(expected01, (l, r) => new { expected = r, actual = l }))
+                {
+                    Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
+                    CollectionAssert.AreEqual(row.expected, row.actual);
+                }
+            }
+        }
+#endif
     }
 }

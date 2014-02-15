@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace HandyUtil.Extensions.System
 {
@@ -44,23 +43,18 @@ namespace HandyUtil.Extensions.System
         public static TEnum ToEnum<TEnum>(this string str, bool ignoreCase = true) where TEnum : struct
         {
             var type = typeof(TEnum);
-            if (!type.IsEnum)
-            {
-                throw new TypeAccessException("TEnum must be an enum type.");
-            }
+            ThrowIfNotEnumType(type);
+
             return (TEnum)Enum.Parse(type, str, ignoreCase);
         }
 
         public static TEnum? ToEnumOrNull<TEnum>(this string str, bool ignoreCase = true) where TEnum : struct
         {
             var type = typeof(TEnum);
-            if (!type.IsEnum)
-            {
-                throw new TypeAccessException("TEnum must be an enum type.");
-            }
+            ThrowIfNotEnumType(type);
 
             TEnum result;
-            if (Enum.TryParse(str, ignoreCase, out result) && Enum.IsDefined(type, result))
+            if (TryParseEnum(str, ignoreCase, out result) && Enum.IsDefined(type, result))
             {
                 return result;
             }
@@ -70,18 +64,44 @@ namespace HandyUtil.Extensions.System
         public static TEnum ToEnumOrDefault<TEnum>(this string str, TEnum defaultValue = default(TEnum), bool ignoreCase = true) where TEnum : struct
         {
             var type = typeof(TEnum);
-            if (!type.IsEnum)
-            {
-                throw new TypeAccessException("TEnum must be an enum type.");
-            }
+            ThrowIfNotEnumType(type);
 
             TEnum result;
-            if (Enum.TryParse(str, ignoreCase, out result) && Enum.IsDefined(type, result))
+            if (TryParseEnum(str, ignoreCase, out result) && Enum.IsDefined(type, result))
             {
                 return result;
             }
             return defaultValue;
         }
 
+        private static void ThrowIfNotEnumType(Type type)
+        {
+            if (!type.IsEnum)
+            {
+#if net40
+                throw new TypeAccessException("TEnum must be an enum type.");
+#else
+                throw new ArgumentException("TEnum must be an enum type.");
+#endif
+            }
+
+        }
+
+        private static bool TryParseEnum<TEnum>(string str, bool ignoreCase, out TEnum result) where TEnum:struct
+        {
+#if net40
+            return Enum.TryParse(str, ignoreCase, out result);
+#else
+            try
+            {
+                result = (TEnum)Enum.Parse(typeof(TEnum), str, ignoreCase);
+                return true;
+            }catch(ArgumentException)
+            {
+                result = default(TEnum);
+                return false;
+            }
+#endif
+        }
     }
 }

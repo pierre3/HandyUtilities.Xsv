@@ -8,13 +8,20 @@ namespace HandyUtil.Extensions.System.Linq
     {
         public static string ConcatWith<T>(this IEnumerable<T> source, string separator)
         {
-           
+#if net40
             return string.Join<T>(separator, source);
+#else
+            return string.Join(separator, source.Select(x=>x.ToString()).ToArray());
+#endif
         }
 
         public static string ConcatWith<T>(this IEnumerable<T> source, string separator, string format, IFormatProvider provider = null) where T : IFormattable
         {
+#if net40
             return string.Join(separator, source.Select(value => value.ToString(format, provider)));
+#else
+            return string.Join(separator, source.Select(value => value.ToString(format, provider)).ToArray());
+#endif
         }
 
         public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second,
@@ -114,5 +121,35 @@ namespace HandyUtil.Extensions.System.Linq
                 yield return value;
             }
         }
+
+#if net35
+        public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(
+            this IEnumerable<TFirst> first, IEnumerable<TSecond> second, Func<TFirst, TSecond, TResult> resultSelector)
+        {
+            if (first == null)
+            {
+                throw new ArgumentNullException("first");
+            }
+            if (second == null)
+            {
+                throw new ArgumentNullException("second");
+            }
+            return _Zip(first, second, resultSelector);
+        }
+
+        private static IEnumerable<TResult> _Zip<TFirst, TSecond, TResult>(
+            this IEnumerable<TFirst> first, IEnumerable<TSecond> second, Func<TFirst, TSecond, TResult> resultSelector)
+        {
+            using(var e1st = first.GetEnumerator())
+            using (var e2nd = second.GetEnumerator())
+            {
+                while (e1st.MoveNext() && e2nd.MoveNext())
+                {
+                    yield return resultSelector(e1st.Current, e2nd.Current);
+                }
+            }
+        }
+#endif
+
     }
 }

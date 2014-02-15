@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Text;
+
+#if net40
+using System.Reactive.Linq;
 using System.Threading.Tasks;
+#endif
+
 namespace HandyUtil.Text.Xsv
 {
     public class XsvReader : IDisposable
@@ -61,11 +65,6 @@ namespace HandyUtil.Text.Xsv
             return BaseReader.ReadLine();
         }
 
-        public async Task<string> ReadLineAsync()
-        {
-            return await BaseReader.ReadLineAsync();
-        }
-
         public IEnumerable<string> ReadXsvLine(ICollection<string> delimiters)
         {
             return Parse(ReadLine(), delimiters, () => ReadLine());
@@ -77,40 +76,6 @@ namespace HandyUtil.Text.Xsv
             {
                 yield return ReadXsvLine(delimiters).ToArray();
             }
-        }
-
-        public async Task<string[]> ReadXsvLineAsync(ICollection<string> delimiters)
-        {
-            return await Task.Run(() => ReadXsvLine(delimiters).ToArray());
-        }
-
-        public async Task<IList<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters)
-        {
-            return await Task.Run(() => ReadXsvToEnd(delimiters).ToList());
-        }
-
-        public IObservable<string[]> AsObservable(ICollection<string> delimiters)
-        {
-            return Observable.Create<string[]>(async (observer, cts) =>
-            {
-                var line = 1;
-                try
-                {
-                    while (!EndOfData)
-                    {
-                        if (cts.IsCancellationRequested)
-                        { break; }
-                        var row = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
-                        observer.OnNext(row);
-                        line++;
-                    }
-                    observer.OnCompleted();
-                }
-                catch (Exception e)
-                {
-                    observer.OnError(new XsvReaderException(line, e.Message, e));
-                }
-            });
         }
 
         public static IEnumerable<string> Parse(string line, ICollection<string> delimiters, Func<string> followingLineSelector)
@@ -210,6 +175,47 @@ namespace HandyUtil.Text.Xsv
             }
 
         }
+
+#if net40
+        public async Task<string> ReadLineAsync()
+        {
+            return await BaseReader.ReadLineAsync();
+        }
+
+        public async Task<string[]> ReadXsvLineAsync(ICollection<string> delimiters)
+        {
+            return await Task.Run(() => ReadXsvLine(delimiters).ToArray());
+        }
+
+        public async Task<IList<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters)
+        {
+            return await Task.Run(() => ReadXsvToEnd(delimiters).ToList());
+        }
+
+        public IObservable<string[]> AsObservable(ICollection<string> delimiters)
+        {
+            return Observable.Create<string[]>(async (observer, cts) =>
+            {
+                var line = 1;
+                try
+                {
+                    while (!EndOfData)
+                    {
+                        if (cts.IsCancellationRequested)
+                        { break; }
+                        var row = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
+                        observer.OnNext(row);
+                        line++;
+                    }
+                    observer.OnCompleted();
+                }
+                catch (Exception e)
+                {
+                    observer.OnError(new XsvReaderException(line, e.Message, e));
+                }
+            });
+        }
+#endif
 
         private enum TokenState
         {

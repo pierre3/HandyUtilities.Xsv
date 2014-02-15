@@ -59,7 +59,7 @@ namespace HandyUtil.Text.Xsv
             {
                 if (_items.ContainsKey(prop.Name))
                 {
-                    _items[prop.Name] = new XsvField(prop.GetValue(Fields).ToString());
+                    _items[prop.Name] = new XsvField(prop.GetValue(Fields, null).ToString());
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace HandyUtil.Text.Xsv
                 var type = prop.PropertyType;
                 if (type.IsEnum)
                 {
-                    prop.SetValue(Fields, _items[prop.Name].AsEnum(type, Activator.CreateInstance(type)));
+                    prop.SetValue(Fields, _items[prop.Name].AsEnum(type, Activator.CreateInstance(type)),null);
                     continue;
                 }
 
@@ -86,7 +86,7 @@ namespace HandyUtil.Text.Xsv
                 {
                     if (type.GetGenericParameterConstraints()[0].IsEnum)
                     {
-                        prop.SetValue(Fields, _items[prop.Name].AsNullableEnum(type));
+                        prop.SetValue(Fields, _items[prop.Name].AsNullableEnum(type),null);
                         continue;
                     }
                     SetNullableProperty(code, prop);
@@ -101,48 +101,48 @@ namespace HandyUtil.Text.Xsv
             switch (code)
             {
                 case TypeCode.Boolean:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableBoolean());
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableBoolean(),null);
                     break;
                 case TypeCode.String:
                     break;
                 case TypeCode.Char:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableChar());
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableChar(), null);
                     break;
                 case TypeCode.DateTime:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableDateTime());
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableDateTime(), null);
                     break;
                 case TypeCode.Int16:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableInt16(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableInt16(NumberStyles.Currency), null);
                     break;
                 case TypeCode.Int32:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableInt32(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableInt32(NumberStyles.Currency), null);
                     break;
                 case TypeCode.Int64:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableInt64(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableInt64(NumberStyles.Currency), null);
                     break;
                 case TypeCode.UInt16:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableUInt16(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableUInt16(NumberStyles.Currency), null);
                     break;
                 case TypeCode.UInt32:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableUInt32(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableUInt32(NumberStyles.Currency), null);
                     break;
                 case TypeCode.UInt64:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableUInt64(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableUInt64(NumberStyles.Currency), null);
                     break;
                 case TypeCode.Single:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableFloat(NumberStyles.Any));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableFloat(NumberStyles.Any), null);
                     break;
                 case TypeCode.Double:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableDouble(NumberStyles.Any));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableDouble(NumberStyles.Any), null);
                     break;
                 case TypeCode.Decimal:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableDecimal(NumberStyles.Any));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableDecimal(NumberStyles.Any), null);
                     break;
                 case TypeCode.SByte:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableSByte(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableSByte(NumberStyles.Currency), null);
                     break;
                 case TypeCode.Byte:
-                    prop.SetValue(Fields, _items[prop.Name].AsNullableByte(NumberStyles.Currency));
+                    prop.SetValue(Fields, _items[prop.Name].AsNullableByte(NumberStyles.Currency), null);
                     break;
                 case TypeCode.Object:
                 case TypeCode.DBNull:
@@ -157,49 +157,49 @@ namespace HandyUtil.Text.Xsv
             switch (code)
             {
                 case TypeCode.Boolean:
-                    prop.SetValue(Fields, _items[prop.Name].AsBoolean(default(bool)));
+                    prop.SetValue(Fields, _items[prop.Name].AsBoolean(default(bool)), null);
                     break;
                 case TypeCode.String:
-                    prop.SetValue(Fields, _items[prop.Name].AsString(default(string)));
+                    prop.SetValue(Fields, _items[prop.Name].AsString(default(string)), null);
                     break;
                 case TypeCode.Char:
-                    prop.SetValue(Fields, _items[prop.Name].AsChar(default(char)));
+                    prop.SetValue(Fields, _items[prop.Name].AsChar(default(char)), null);
                     break;
                 case TypeCode.DateTime:
-                    prop.SetValue(Fields, _items[prop.Name].AsDateTime(default(DateTime)));
+                    prop.SetValue(Fields, _items[prop.Name].AsDateTime(default(DateTime)), null);
                     break;
                 case TypeCode.Int16:
-                    prop.SetValue(Fields, _items[prop.Name].AsInt16(NumberStyles.Currency, default(short)));
+                    prop.SetValue(Fields, _items[prop.Name].AsInt16(NumberStyles.Currency, default(short)), null);
                     break;
                 case TypeCode.Int32:
-                    prop.SetValue(Fields, _items[prop.Name].AsInt32(NumberStyles.Currency, default(int)));
+                    prop.SetValue(Fields, _items[prop.Name].AsInt32(NumberStyles.Currency, default(int)), null);
                     break;
                 case TypeCode.Int64:
-                    prop.SetValue(Fields, _items[prop.Name].AsInt64(NumberStyles.Currency, default(long)));
+                    prop.SetValue(Fields, _items[prop.Name].AsInt64(NumberStyles.Currency, default(long)), null);
                     break;
                 case TypeCode.UInt16:
-                    prop.SetValue(Fields, _items[prop.Name].AsUInt16(NumberStyles.Currency, default(ushort)));
+                    prop.SetValue(Fields, _items[prop.Name].AsUInt16(NumberStyles.Currency, default(ushort)), null);
                     break;
                 case TypeCode.UInt32:
-                    prop.SetValue(Fields, _items[prop.Name].AsUInt32(NumberStyles.Currency, default(uint)));
+                    prop.SetValue(Fields, _items[prop.Name].AsUInt32(NumberStyles.Currency, default(uint)), null);
                     break;
                 case TypeCode.UInt64:
-                    prop.SetValue(Fields, _items[prop.Name].AsUInt64(NumberStyles.Currency, default(ulong)));
+                    prop.SetValue(Fields, _items[prop.Name].AsUInt64(NumberStyles.Currency, default(ulong)), null);
                     break;
                 case TypeCode.Single:
-                    prop.SetValue(Fields, _items[prop.Name].AsFloat(NumberStyles.Any, default(float)));
+                    prop.SetValue(Fields, _items[prop.Name].AsFloat(NumberStyles.Any, default(float)), null);
                     break;
                 case TypeCode.Double:
-                    prop.SetValue(Fields, _items[prop.Name].AsDouble(NumberStyles.Any, default(double)));
+                    prop.SetValue(Fields, _items[prop.Name].AsDouble(NumberStyles.Any, default(double)), null);
                     break;
                 case TypeCode.Decimal:
-                    prop.SetValue(Fields, _items[prop.Name].AsDecimal(NumberStyles.Any, default(decimal)));
+                    prop.SetValue(Fields, _items[prop.Name].AsDecimal(NumberStyles.Any, default(decimal)), null);
                     break;
                 case TypeCode.SByte:
-                    prop.SetValue(Fields, _items[prop.Name].AsSByte(NumberStyles.Currency, default(sbyte)));
+                    prop.SetValue(Fields, _items[prop.Name].AsSByte(NumberStyles.Currency, default(sbyte)), null);
                     break;
                 case TypeCode.Byte:
-                    prop.SetValue(Fields, _items[prop.Name].AsByte(NumberStyles.Currency, default(byte)));
+                    prop.SetValue(Fields, _items[prop.Name].AsByte(NumberStyles.Currency, default(byte)), null);
                     break;
                 case TypeCode.Object:
                 case TypeCode.DBNull:

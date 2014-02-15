@@ -6,7 +6,10 @@ using HandyUtil.Text.Xsv;
 using System.IO;
 using System.Text;
 using System.Linq;
+
+#if net40
 using System.Threading.Tasks;
+#endif
 
 namespace Utility.TextTest
 {
@@ -194,7 +197,7 @@ namespace Utility.TextTest
         }
 
         [TestMethod]
-        public async Task AddColumnHeaderTest()
+        public void AddColumnHeaderTest()
         {
             var expected = new[]{ 
                 new { 品番 = 110, 船種 = "戦艦", 品名 = "比叡　ひえい", 税込価格 = 2625, 本体価格 = 2500, メーカー = Maker.Ｈ, 名前= "戦艦 比叡　ひえい", コメント=""},
@@ -208,7 +211,7 @@ namespace Utility.TextTest
             var target = new XsvData<ShipModelDataRow>(new[] { "," });
             using (var reader = new XsvReader(new System.IO.StringReader(data2)))
             {
-                await target.ReadAsync(reader, true);
+                target.Read(reader, true);
             }
 
             target.AddColumnHeader("名前");
@@ -233,7 +236,7 @@ namespace Utility.TextTest
         }
 
         [TestMethod]
-        public async Task EditColumnHeaderTest(){
+        public void EditColumnHeaderTest(){
             string expected = "品番,名前,本体価格,メーカー,品名" + Environment.NewLine
                + "110,戦艦 比叡　ひえい,\"2,500\",Ｈ,比叡　ひえい" + Environment.NewLine
                + "119,航空戦艦 伊勢　いせ,\"3,200\",Ｈ,伊勢　いせ" + Environment.NewLine
@@ -245,7 +248,7 @@ namespace Utility.TextTest
             var target = new XsvData<ShipModelDataRow>(new[] { "," });
             using (var reader = new XsvReader(new System.IO.StringReader(data2)))
             {
-                await target.ReadAsync(reader, true);
+                target.Read(reader, true);
             }
 
             target.AddColumnHeader("名前");

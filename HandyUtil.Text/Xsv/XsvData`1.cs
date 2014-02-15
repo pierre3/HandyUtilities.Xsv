@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Collections;
+
+#if net40
+using System.Threading.Tasks;
+#endif
 
 namespace HandyUtil.Text.Xsv
 {
@@ -44,6 +47,43 @@ namespace HandyUtil.Text.Xsv
             this._rows = rows;
         }
 
+        protected IList<string> ReadHeader(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        {
+            var header = headerStrings ?? Enumerable.Empty<string>();
+            if (headerExists)
+            {
+                header = xsvReader.ReadXsvLine(Delimiters);
+            }
+            return header.ToList();
+        }
+
+        public void Read(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        {
+            if (xsvReader == null)
+            { throw new ArgumentNullException("xsvReader"); }
+            _rows.Clear();
+
+            var headers = ReadHeader(xsvReader, headerExists, headerStrings);
+            _columnHeaders = new XsvColumnHeaders(headers);
+            var rows = xsvReader.ReadXsvToEnd(Delimiters);
+            foreach (var row in rows)
+            {
+                _rows.Add(CreateXsvRow(headers, row));
+            }
+        }
+
+        public void Read(Stream stream, bool headerExists, IEnumerable<string> headerStrings = null, Encoding encoding = null)
+        {
+            if (stream == null)
+            { throw new ArgumentNullException("stream"); }
+
+            using (var xsvReader = new XsvReader(stream, encoding))
+            {
+                Read(xsvReader, headerExists, headerStrings);
+            }
+        }
+
+#if net40
         public async Task<IDisposable> ReadAsyncObservable(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null,
             Action<string[]> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
         {
@@ -77,16 +117,6 @@ namespace HandyUtil.Text.Xsv
             return header.ToList();
         }
 
-        protected IList<string> ReadHeader(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
-        {
-            var header = headerStrings ?? Enumerable.Empty<string>();
-            if (headerExists)
-            {
-                header = xsvReader.ReadXsvLine(Delimiters);
-            }
-            return header.ToList();
-        }
-
         public async Task ReadAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
         {
             if (xsvReader == null)
@@ -101,33 +131,8 @@ namespace HandyUtil.Text.Xsv
                 _rows.Add(CreateXsvRow(headers, row));
             }
         }
-
-        public void Read(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
-        {
-            if (xsvReader == null)
-            { throw new ArgumentNullException("xsvReader"); }
-            _rows.Clear();
-
-            var headers = ReadHeader(xsvReader, headerExists, headerStrings);
-            _columnHeaders = new XsvColumnHeaders(headers);
-            var rows = xsvReader.ReadXsvToEnd(Delimiters);
-            foreach (var row in rows)
-            {
-                _rows.Add(CreateXsvRow(headers, row));
-            }
-        }
-
-        public void Read(Stream stream, bool headerExists, IEnumerable<string> headerStrings = null, Encoding encoding = null)
-        {
-            if (stream == null)
-            { throw new ArgumentNullException("stream"); }
-
-            using (var xsvReader = new XsvReader(stream, encoding))
-            {
-                Read(xsvReader, headerExists, headerStrings);
-            }
-        }
-
+#endif        
+        
         public void Write(TextWriter writer, string delimiter = null, WriterSettings settings = null)
         {
             if (settings == null)
@@ -231,7 +236,6 @@ namespace HandyUtil.Text.Xsv
             }
 
         }
-
 
         public class WriterSettings
         {

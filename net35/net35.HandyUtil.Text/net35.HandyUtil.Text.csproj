@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{730DCFF5-73A3-453F-B087-EAFEF1BBA1F7}</ProjectGuid>
+    <ProjectGuid>{44FBF8C2-6BE0-4CC9-B8D1-9DB571E48278}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HandyUtil.Text</RootNamespace>
     <AssemblyName>HandyUtil.Text</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -18,72 +18,80 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;net40;net45</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;net35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;net40;net45</DefineConstants>
+    <DefineConstants>TRACE;net35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Reactive.Core">
-      <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq">
-      <HintPath>..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.2\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Xsv\TypedXsvData`1.cs" />
-    <Compile Include="Xsv\XsvDataRow`1.cs" />
-    <Compile Include="Xsv\XsvData.cs" />
-    <Compile Include="Xsv\XsvField.cs" />
-    <Compile Include="Xsv\XsvField.t4.cs">
+    <Compile Include="..\..\HandyUtil.Text\Xsv\TypedXsvData`1.cs">
+      <Link>TypedXsvData`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvColumnHeaders`1.cs">
+      <Link>XsvColumnHeaders`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvData.cs">
+      <Link>XsvData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvDataRow.cs">
+      <Link>XsvDataRow.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvDataRow`1.cs">
+      <Link>XsvDataRow`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvData`1.cs">
+      <Link>XsvData`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvField.cs">
+      <Link>XsvField.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvField.t41.cs">
+      <Link>XsvField.t41.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>XsvField.t4.tt</DependentUpon>
     </Compile>
-    <Compile Include="Xsv\XsvFieldBindingEventArgs.cs" />
-    <Compile Include="Xsv\XsvColumnHeaders`1.cs" />
-    <Compile Include="Xsv\XsvReader.cs" />
-    <Compile Include="Xsv\XsvReaderException.cs" />
-    <None Include="packages.config" />
-    <None Include="Xsv\XsvField.t4.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>XsvField.t4.cs</LastGenOutput>
-    </None>
-    <Compile Include="Xsv\XsvData`1.cs" />
-    <Compile Include="Xsv\XsvDataRow.cs" />
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvFieldBindingEventArgs.cs">
+      <Link>XsvFieldBindingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvReader.cs">
+      <Link>XsvReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvReaderException.cs">
+      <Link>XsvReaderException.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\net35.HandyUtil.Extensions\net35.HandyUtil.Extensions.csproj">
+      <Project>{6db12825-2751-4204-9022-0d45b9cd3de7}</Project>
+      <Name>net35.HandyUtil.Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HandyUtil.Extensions\HandyUtil.Extensions.csproj">
-      <Project>{74bc3a81-685c-4ca5-9bcb-5dfec8bc1b89}</Project>
-      <Name>HandyUtil.Extensions</Name>
-    </ProjectReference>
+    <None Include="..\..\HandyUtil.Text\Xsv\XsvField.t4.tt">
+      <Link>XsvField.t4.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>XsvField.t41.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
