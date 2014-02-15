@@ -51,21 +51,23 @@
     <Compile Include="..\..\HandyUtil.Extensions\System\StringExt.cs">
       <Link>StringExt.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringExt.t4.cs">
+    <Compile Include="..\..\HandyUtil.Extensions\System\StringExt.t4.cs">
+      <Link>StringExt.t4.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>StringExt.t4.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="StringExt.t4.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>StringExt.t4.cs</LastGenOutput>
-    </None>
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\HandyUtil.Extensions\System\StringExt.t4.tt">
+      <Link>StringExt.t4.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>StringExt.t4.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
