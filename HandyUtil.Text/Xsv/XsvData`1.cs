@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Collections.ObjectModel;
-using System.Collections;
+
 
 #if net40
 using System.Threading.Tasks;
 using System.Threading;
-using System.Reactive.Disposables;
+
 #endif
 
 namespace HandyUtil.Text.Xsv
@@ -154,7 +153,7 @@ namespace HandyUtil.Text.Xsv
             { throw new ArgumentNullException("xsvReader"); }
             _rows.Clear();
 
-            return ReadHeaderAsync(xsvReader, headerExists, headerStrings).ContinueWith(readHeaderTask=>
+            return ReadHeaderAsync(xsvReader, headerExists, headerStrings).ContinueWith(readHeaderTask =>
             {
                 var headers = readHeaderTask.Result;
                 _columnHeaders = new XsvColumnHeaders(headers);
@@ -168,6 +167,30 @@ namespace HandyUtil.Text.Xsv
                     }
                 });
             });
+        }
+
+        public IDisposable ReadObservable(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null,
+           Action<IEnumerable<string>> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
+        {
+            if (xsvReader == null)
+            { throw new ArgumentNullException("xsvReader"); }
+
+            _rows.Clear();
+
+            var headers = ReadHeader(xsvReader, headerExists, headerStrings);
+            _columnHeaders = new XsvColumnHeaders(headers);
+            var cts = new CancellationTokenSource();
+            return xsvReader.ReadXsvObservable(Delimiters).Subscribe(
+                row =>
+                {
+                    _rows.Add(CreateXsvRow(headers, row));
+                    if (OnNext != null)
+                    {
+                        OnNext(row);
+                    }
+                },
+                OnError ?? (_ => { }),
+                OnCompleded ?? (() => { }));
         }
 #endif
 #endif

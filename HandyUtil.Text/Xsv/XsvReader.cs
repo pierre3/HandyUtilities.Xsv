@@ -8,6 +8,7 @@ using System.Text;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reactive.Disposables;
 #endif
 
 namespace HandyUtil.Text.Xsv
@@ -195,26 +196,32 @@ namespace HandyUtil.Text.Xsv
 
         public IObservable<string[]> ReadXsvObservable(ICollection<string> delimiters)
         {
-            return Observable.Create<string[]>(async (observer, cts) =>
+            return Observable.Create<string[]>(async (observer, ct) =>
             {
-                var line = 1;
-                try
-                {
-                    while (!EndOfData)
-                    {
-                        if (cts.IsCancellationRequested)
-                        { break; }
-                        var row = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
-                        observer.OnNext(row);
-                        line++;
-                    }
-                    observer.OnCompleted();
-                }
-                catch (Exception e)
-                {
-                    observer.OnError(new XsvReaderException(line, e.Message, e));
-                }
+                await SubscribeAsync(observer, ct, delimiters);
             });
+        }
+
+        protected async Task SubscribeAsync(IObserver<string[]> observer, CancellationToken ct, ICollection<string> delimiters)
+        {
+            var line = 1;
+            try
+            {
+                while (!EndOfData)
+                {
+                    if (ct.IsCancellationRequested)
+                    { break; }
+
+                    var row = await ReadXsvLineAsync(delimiters);
+                    observer.OnNext(row);
+                    line++;
+                }
+                observer.OnCompleted();
+            }
+            catch (Exception e)
+            {
+                observer.OnError(new XsvReaderException(line, e.Message, e));
+            }
         }
 #else
 #if net40
@@ -231,6 +238,42 @@ namespace HandyUtil.Text.Xsv
         public Task<IList<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters)
         {
             return Task.Factory.StartNew(() => (IList<string[]>)ReadXsvToEnd(delimiters).ToList());
+        }
+
+        public IObservable<IEnumerable<string>> ReadXsvObservable(ICollection<string> delimiters)
+        {
+            return Observable.Create<IEnumerable<string>>(observer =>
+            {
+                var cts = new CancellationTokenSource();
+                var disposable = Observable.FromAsync(ct => SubscribeAsync(observer, ct, delimiters))
+                    .Subscribe(_ => { }, observer.OnError, observer.OnCompleted);
+                return new CompositeDisposable(disposable, new CancellationDisposable(cts));
+            });
+        }
+
+        protected Task SubscribeAsync(IObserver<string[]> observer, CancellationToken ct, ICollection<string> delimiters)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                var line = 1;
+                try
+                {
+                    while (!EndOfData)
+                    {
+                        if (ct.IsCancellationRequested)
+                        { break; }
+
+                        var row = ReadXsvLine(delimiters).ToArray();
+                        observer.OnNext(row);
+                        line++;
+                    }
+                    observer.OnCompleted();
+                }
+                catch (Exception e)
+                {
+                    observer.OnError(new XsvReaderException(line, e.Message, e));
+                }
+            });
         }
 #endif
 #endif
