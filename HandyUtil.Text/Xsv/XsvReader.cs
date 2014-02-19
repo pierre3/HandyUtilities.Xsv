@@ -211,7 +211,6 @@ namespace HandyUtil.Text.Xsv
                 {
                     if (ct.IsCancellationRequested)
                     { break; }
-
                     var row = await ReadXsvLineAsync(delimiters);
                     observer.OnNext(row);
                     line++;
@@ -240,9 +239,9 @@ namespace HandyUtil.Text.Xsv
             return Task.Factory.StartNew(() => (IList<string[]>)ReadXsvToEnd(delimiters).ToList());
         }
 
-        public IObservable<IEnumerable<string>> ReadXsvObservable(ICollection<string> delimiters)
+        public IObservable<string[]> ReadXsvObservable(ICollection<string> delimiters)
         {
-            return Observable.Create<IEnumerable<string>>(observer =>
+            return Observable.Create<string[]>(observer =>
             {
                 var cts = new CancellationTokenSource();
                 var disposable = Observable.FromAsync(ct => SubscribeAsync(observer, ct, delimiters))

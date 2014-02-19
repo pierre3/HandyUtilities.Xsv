@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net40.HandyUtil.TextTest", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net40.HandyUtil.Extensions", "net40\net40.HandyUtil.Extensions\net40.HandyUtil.Extensions.csproj", "{4497B7A2-D81C-4DCD-91D9-EBC98C1E56E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net40.HandyUtilConsole", "net40\net40.HandyUtilConsole\net40.HandyUtilConsole.csproj", "{B68DD74C-91B1-40B3-9F8E-2D6D11961925}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{4497B7A2-D81C-4DCD-91D9-EBC98C1E56E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4497B7A2-D81C-4DCD-91D9-EBC98C1E56E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4497B7A2-D81C-4DCD-91D9-EBC98C1E56E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B68DD74C-91B1-40B3-9F8E-2D6D11961925}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B68DD74C-91B1-40B3-9F8E-2D6D11961925}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B68DD74C-91B1-40B3-9F8E-2D6D11961925}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B68DD74C-91B1-40B3-9F8E-2D6D11961925}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

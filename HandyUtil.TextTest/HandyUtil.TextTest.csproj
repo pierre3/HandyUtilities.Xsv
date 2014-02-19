@@ -81,9 +81,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ModelShips.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

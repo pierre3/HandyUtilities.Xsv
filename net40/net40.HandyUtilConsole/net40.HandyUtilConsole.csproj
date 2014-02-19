@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{70829527-D25C-450B-895B-E4585A3ADCDC}</ProjectGuid>
+    <ProjectGuid>{B68DD74C-91B1-40B3-9F8E-2D6D11961925}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HandyUtilConsole</RootNamespace>
     <AssemblyName>HandyUtilConsole</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -19,35 +19,33 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;net40;net45</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;net40;net45</DefineConstants>
+    <DefineConstants>TRACE;net40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core">
-      <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Core.2.2.2\lib\net40\System.Reactive.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Interfaces.2.2.2\lib\net40\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Linq">
-      <HintPath>..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Linq.2.2.2\lib\net40\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.2\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+      <HintPath>..\..\packages\Rx-PlatformServices.2.2.2\lib\net40\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -56,34 +54,43 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="..\..\HandyUtilConsole\Program.cs">
+      <Link>Program.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HandyUtil.ExtensionsTest\HandyUtil.ExtensionsTest.csproj">
-      <Project>{a26daa31-2358-4928-b723-0962c3be2fb5}</Project>
-      <Name>HandyUtil.ExtensionsTest</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HandyUtil.Extensions\HandyUtil.Extensions.csproj">
-      <Project>{74bc3a81-685c-4ca5-9bcb-5dfec8bc1b89}</Project>
-      <Name>HandyUtil.Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HandyUtil.Text\HandyUtil.Text.csproj">
-      <Project>{730dcff5-73a3-453f-b087-eafef1bba1f7}</Project>
-      <Name>HandyUtil.Text</Name>
-    </ProjectReference>
+    <Content Include="..\..\HandyUtilConsole\ModelShips.txt">
+      <Link>ModelShips.txt</Link>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ModelShips.txt" />
+    <ProjectReference Include="..\net40.HandyUtil.Extensions\net40.HandyUtil.Extensions.csproj">
+      <Project>{4497b7a2-d81c-4dcd-91d9-ebc98c1e56e2}</Project>
+      <Name>net40.HandyUtil.Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\net40.HandyUtil.Text\net40.HandyUtil.Text.csproj">
+      <Project>{77c97d10-544b-4236-80ab-aacbef9ad012}</Project>
+      <Name>net40.HandyUtil.Text</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -94,20 +94,19 @@ four"" ";
                 CollectionAssert.AreEqual(row.expected, row.actual);
             }
         }
-
-#if net45
+#if net40
         [TestMethod]
-        public void AsObservableTest()
+        public void ReadXsvObservableTest()
         {
-            var csv = new List<Dictionary<string, string>>();
+            var csv = new List<string[]>();
 
             using (var reader = new XsvReader(new StringReader(testData01)))
             {
-                var header = reader.ReadXsvLine(new[] { "," });
+                csv.Add(reader.ReadXsvLine(new[] { "," }).ToArray());
 
                 IDisposable disposable = reader.ReadXsvObservable(new[] { "," }).Subscribe(row =>
                 {
-                    csv.Add(header.Zip(row, (key, value) => new { key, value }).ToDictionary(a => a.key, a => a.value));
+                    csv.Add(row);
                     Console.WriteLine("OnNext");
                     Console.WriteLine(row.ConcatWith(", "));
                 },
@@ -123,7 +122,8 @@ four"" ";
                 });
             }
         }
-
+#endif
+#if net45
         [TestMethod]
         public async Task ReadXsvToEndAsyncTest()
         {
