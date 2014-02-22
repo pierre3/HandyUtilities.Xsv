@@ -35,6 +35,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HandyUtil.Extensions">
+      <HintPath>..\packages\HandyUtil.Extensions.0.5.0.0\lib\net451\HandyUtil.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="HandyUtil.Text">
+      <HintPath>..\packages\HandyUtilities.Xsv.0.5.0.1\lib\net451\HandyUtil.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core">
@@ -67,20 +73,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HandyUtil.ExtensionsTest\HandyUtil.ExtensionsTest.csproj">
-      <Project>{a26daa31-2358-4928-b723-0962c3be2fb5}</Project>
-      <Name>HandyUtil.ExtensionsTest</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HandyUtil.Extensions\HandyUtil.Extensions.csproj">
-      <Project>{74bc3a81-685c-4ca5-9bcb-5dfec8bc1b89}</Project>
-      <Name>HandyUtil.Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HandyUtil.Text\HandyUtil.Text.csproj">
-      <Project>{730dcff5-73a3-453f-b087-eafef1bba1f7}</Project>
-      <Name>HandyUtil.Text</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModelShips.txt" />
