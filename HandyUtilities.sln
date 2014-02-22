@@ -31,6 +31,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net40.HandyUtil.Extensions"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net40.HandyUtilConsole", "net40\net40.HandyUtilConsole\net40.HandyUtilConsole.csproj", "{B68DD74C-91B1-40B3-9F8E-2D6D11961925}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net45.HandyUtil.Extensions", "net45\net45.HandyUtil.Extensions\net45.HandyUtil.Extensions.csproj", "{C23EAFA3-FC65-4A6D-95DB-A79642047BC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net45.HandyUtil.Text", "net45\net45.HandyUtil.Text\net45.HandyUtil.Text.csproj", "{2FFBD059-41C2-44A5-B1D9-CF8C4D1A09D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +97,14 @@ Global
 		{B68DD74C-91B1-40B3-9F8E-2D6D11961925}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B68DD74C-91B1-40B3-9F8E-2D6D11961925}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B68DD74C-91B1-40B3-9F8E-2D6D11961925}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C23EAFA3-FC65-4A6D-95DB-A79642047BC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C23EAFA3-FC65-4A6D-95DB-A79642047BC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C23EAFA3-FC65-4A6D-95DB-A79642047BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C23EAFA3-FC65-4A6D-95DB-A79642047BC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FFBD059-41C2-44A5-B1D9-CF8C4D1A09D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FFBD059-41C2-44A5-B1D9-CF8C4D1A09D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FFBD059-41C2-44A5-B1D9-CF8C4D1A09D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FFBD059-41C2-44A5-B1D9-CF8C4D1A09D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

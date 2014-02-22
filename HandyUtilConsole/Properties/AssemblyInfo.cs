@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
 [assembly: AssemblyTitle("HandyUtilConsole")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("for .Net Framework 4.5")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("HandyUtilConsole")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyCopyright("Copyright ©  2013 pierre3")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

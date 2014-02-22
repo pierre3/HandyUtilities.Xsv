@@ -38,6 +38,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HandyUtil.Extensions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\HandyUtil.Extensions.0.5.0.0\lib\net451\HandyUtil.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
@@ -71,10 +75,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HandyUtil.Extensions\HandyUtil.Extensions.csproj">
-      <Project>{74bc3a81-685c-4ca5-9bcb-5dfec8bc1b89}</Project>
-      <Name>HandyUtil.Extensions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HandyUtil.Text\HandyUtil.Text.csproj">
       <Project>{730dcff5-73a3-453f-b087-eafef1bba1f7}</Project>
       <Name>HandyUtil.Text</Name>
