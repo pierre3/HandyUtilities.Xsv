@@ -9,7 +9,7 @@ This is CSV, TSV and any character separated value data processing library.
 public class XmlReader
 {
     //**************************************************************************
-    // Synchronous methods, (Supported in .Net3.5, 4.0, 4.5, 4.5.1)
+    // Synchronous methods (Supported in .Net3.5, 4.0, 4.5, 4.5.1)
     //**************************************************************************
     //Reads a line of characters from the internal text reader.
     public string ReadLine();
@@ -21,7 +21,7 @@ public class XmlReader
     public IEnumerable<string[]> ReadXsvToEnd(ICollection<string> delimiters);
     
     //**************************************************************************
-    // Aynchronous methods, (Supported in .Net 4.0, 4.5, 4.5.1)
+    // Aynchronous methods (Supported in .Net 4.0, 4.5, 4.5.1)
     //**************************************************************************
     //Reads a line of characters from the internal text reader.
     public Task<string> ReadLineAsync();
@@ -33,7 +33,7 @@ public class XmlReader
     public Task<IList<<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters);
     
     //**************************************************************************
-    // Using Rx, returns IObservable (Supported in .Net 4.0, 4.5, 4.5.1)
+    // Create IObservable<T>, (Using Rx) (Supported in .Net 4.0, 4.5, 4.5.1)
     //**************************************************************************
     public IObservable<string[]> ReadXsvObservable(IObserver<string[]> observer,
         CancellationToken ct, ICollection<string> delimiters);
