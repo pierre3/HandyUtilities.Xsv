@@ -2,7 +2,45 @@
 This is CSV, TSV and any character separated value data processing library.
 
 ## Reading XSV data
-Can read from TextReader. And accesses by indexer.
+
+### Can read a XSV Data with the XsvReader.
+
+```cs
+public class XmlReader
+{
+    //**************************************************************************
+    // Synchronous methods, (Supported in .Net3.5, 4.0, 4.5, 4.5.1)
+    //**************************************************************************
+    //Reads a line of characters from the internal text reader.
+    public string ReadLine();
+
+    //Reads a row of XSV data and returns the data as sequence of string.
+    public IEnumerable<string> ReadXsvLine(ICollection<string> delimiters);
+
+    //Reads all rows of XSV data from the current position to end of data.
+    public IEnumerable<string[]> ReadXsvToEnd(ICollection<string> delimiters);
+    
+    //**************************************************************************
+    // Aynchronous methods, (Supported in .Net 4.0, 4.5, 4.5.1)
+    //**************************************************************************
+    //Reads a line of characters from the internal text reader.
+    public Task<string> ReadLineAsync();
+
+    //Reads a row of XSV data and returns the data as array of string.
+    public Task<string[]> ReadXsvLineAsync(ICollection<string> delimiters);
+
+    //Reads all rows of XSV data from the current position to end of data.
+    public Task<IList<<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters);
+    
+    //**************************************************************************
+    // Using Rx, returns IObservable (Supported in .Net 4.0, 4.5, 4.5.1)
+    //**************************************************************************
+    public IObservable<string[]> ReadXsvObservable(IObserver<string[]> observer,
+        CancellationToken ct, ICollection<string> delimiters);
+}
+```
+
+### Reads from XsvReader to a XsvData object. And accesses by indexer.
 
 ```cs
 [TestMethod]
@@ -26,7 +64,7 @@ public void ReadCsvTest_indexer()
     };
 
     var target = new XsvData(new[] { "," });
-    using (var reader = new System.IO.StringReader(data))
+    using (var reader = new XsvReader(new System.IO.StringReader(data)))
     {
         target.Read(reader, headerExists: true);
     }
@@ -44,7 +82,7 @@ public void ReadCsvTest_indexer()
 }
 ```
 
-XsvField structure has many type conversion methods.
+### XsvField structure has many type conversion methods.
 
 ```cs
 public class XsvDataRow : IDictionary<string, XsvField>
@@ -155,7 +193,7 @@ public void ReadCsvTest_inhelitedXsvDataRow()
     };
     
     var target = new XsvData<ShipModelDataRow>(new[] { "," });
-    using (var reader = new System.IO.StringReader(data))
+    using (var reader = new XsvReader(new System.IO.StringReader(data)))
     {
         target.Read(reader, true);
     }
@@ -205,7 +243,7 @@ public void ReadXsvTest_autoBinding()
     };
 
     var target = new TypedXsvData<ShipModel>(new[] { "," }, isAutoBinding: true);
-    using (var reader = new System.IO.StringReader(data))
+    using (var reader = new XsvReader(new System.IO.StringReader(data)))
     {
         target.Read(reader, true);
     }
@@ -262,7 +300,7 @@ public void ReadXsvTest_eventHandler()
         e.Row["Price"] = new XsvField(e.Fields.Price, "0,000￥");
     };
 
-    using (var reader = new System.IO.StringReader(data))
+    using (var reader = new XsvReader(new System.IO.StringReader(data)))
     {
         target.Read(reader, true);
     }
