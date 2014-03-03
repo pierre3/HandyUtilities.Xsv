@@ -90,7 +90,6 @@ namespace HandyUtil.Text.Xsv
 
             foreach (var c in line)
             {
-            RESWITCH:
                 switch (state)
                 {
                     case TokenState.Empty:
@@ -106,7 +105,7 @@ namespace HandyUtil.Text.Xsv
                             break;
                         }
                         state = TokenState.NormalField;
-                        goto RESWITCH;
+                        goto case TokenState.NormalField;
 
                     case TokenState.NormalField:
                         {
@@ -140,7 +139,7 @@ namespace HandyUtil.Text.Xsv
                         yield return token.Substring(1, token.Length - 2).Replace("\"\"", "\"");
                         token = "";
                         state = TokenState.AfterQuote;
-                        goto RESWITCH;
+                        goto case TokenState.AfterQuote;
 
                     case TokenState.AfterQuote:
                         {
