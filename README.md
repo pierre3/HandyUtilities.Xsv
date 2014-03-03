@@ -1,6 +1,12 @@
 # HandyUtilities, .Net C# Xsv data processing library 
 This is CSV, TSV and any character separated value data processing library.
 
+## Installation
+
+NuGet gallery: https://www.nuget.org/packages/HandyUtilities.Xsv/
+
+    PM> Install-Package HandyUtilities.Xsv
+
 ## Reading XSV data
 
 ### Can read a XSV Data with the XsvReader.
