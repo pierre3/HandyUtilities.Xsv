@@ -3,10 +3,11 @@ using HandyUtil.Text.Xsv;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System.Linq;
 
-#if net40
+#if net40 || net45
 using System.Threading.Tasks;
 #endif
 
@@ -26,11 +27,11 @@ four
 
 four"" ";
 
-        static string[][] expected01 = new[]{
-            new []{ "column_1", "column_2", "column_3", "column_4" },
-            new []{ "first", "second", "third", "fourth" },
-            new []{ "0001", "0002", "0003", "0004" },
-            new []{ "o\"n\"e", "t,w,o", "  three  ",
+        static IList<string>[] expected01 = new []{
+            new List<string>(){ "column_1", "column_2", "column_3", "column_4" },
+            new List<string>(){ "first", "second", "third", "fourth" },
+            new List<string>(){ "0001", "0002", "0003", "0004" },
+            new List<string>(){ "o\"n\"e", "t,w,o", "  three  ",
                     "four" + Environment.NewLine 
                     + "four" + Environment.NewLine + Environment.NewLine 
                     + "four" + Environment.NewLine + Environment.NewLine 
@@ -46,11 +47,11 @@ four"" ";
   u
    r""";
 
-        static string[][] expected02 = new[]{
-            new []{ "column_1", "column_2", "column_3", "column_4" },
-            new []{ "  first", "second  ", "  third  ", "four\tth " },
-            new []{ "", "0002", "", "", "0005","0006", "" },
-            new []{ "o\"n\"e", "t w o", "three",
+        static new IList<string>[] expected02 = new[]{
+            new List<string>(){ "column_1", "column_2", "column_3", "column_4" },
+            new List<string>(){ "  first", "second  ", "  third  ", "four\tth " },
+            new List<string>(){ "", "0002", "", "", "0005","0006", "" },
+            new List<string>(){ "o\"n\"e", "t w o", "three",
                       "f" + Environment.NewLine 
                     + " o" + Environment.NewLine
                     + "  u" + Environment.NewLine
@@ -60,7 +61,7 @@ four"" ";
         [TestMethod]
         public void ReadXsvLineTest01()
         {
-            var result = new List<string[]>();
+            var result = new List<IList<string>>();
             using (var reader = new XsvReader(new StringReader(testData01)))
             {
                 while (!reader.EndOfData)
@@ -72,14 +73,14 @@ four"" ";
             foreach (var row in result.Zip(expected01, (l, r) => new { expected = r, actual = l }))
             {
                 Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
-                CollectionAssert.AreEqual(row.expected, row.actual);
+                CollectionAssert.AreEqual((ICollection)row.expected, (ICollection)row.actual);
             }
         }
 
         [TestMethod]
         public void ReadXsvLineTest02()
         {
-            var result = new List<string[]>();
+            var result = new List<IList<string>>();
             using (var reader = new XsvReader(new StringReader(testData02)))
             {
                 while (!reader.EndOfData)
@@ -91,14 +92,14 @@ four"" ";
             foreach (var row in result.Zip(expected02, (l, r) => new { expected = r, actual = l }))
             {
                 Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
-                CollectionAssert.AreEqual(row.expected, row.actual);
+                CollectionAssert.AreEqual((ICollection)row.expected, (ICollection)row.actual);
             }
         }
-#if net40
+#if net40 || net45
         [TestMethod]
         public void ReadXsvObservableTest()
         {
-            var csv = new List<string[]>();
+            var csv = new List<IList<string>>();
 
             using (var reader = new XsvReader(new StringReader(testData01)))
             {
@@ -117,7 +118,7 @@ four"" ";
                     foreach (var row in csv.Zip(expected01, (l, r) => new { expected = r, actual = l }))
                     {
                         Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
-                        CollectionAssert.AreEqual(row.expected, row.actual);
+                        CollectionAssert.AreEqual((ICollection)row.expected, (ICollection)row.actual);
                     }
                 });
             }
@@ -134,11 +135,11 @@ four"" ";
                 foreach (var row in rows.Zip(expected01, (l, r) => new { expected = r, actual = l }))
                 {
                     Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
-                    CollectionAssert.AreEqual(row.expected, row.actual);
+                    CollectionAssert.AreEqual((ICollection)row.expected, (ICollection)row.actual);
                 }
             }
         }
-#else
+#endif
 #if net40
         [TestMethod]
         public void ReadXsvToEndAsyncTest()
@@ -151,12 +152,11 @@ four"" ";
                     foreach (var row in rows.Zip(expected01, (l, r) => new { expected = r, actual = l }))
                     {
                         Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
-                        CollectionAssert.AreEqual(row.expected, row.actual);
+                        CollectionAssert.AreEqual((ICollection)row.expected, (ICollection)row.actual);
                     }
                 });
             }
         }
-#endif
 #endif
     }
 }

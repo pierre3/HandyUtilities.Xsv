@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-#if net40
+#if net40 || net45
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -19,6 +19,7 @@ namespace HandyUtil.Text.Xsv
         protected TextReader BaseReader { set; get; }
 
         public bool Disposed { get; protected set; }
+
         public bool EndOfData
         {
             get
@@ -72,11 +73,11 @@ namespace HandyUtil.Text.Xsv
             return Parse(ReadLine(), delimiters, () => ReadLine());
         }
 
-        public IEnumerable<string[]> ReadXsvToEnd(ICollection<string> delimiters)
+        public IEnumerable<IList<string>> ReadXsvToEnd(ICollection<string> delimiters)
         {
             while (!EndOfData)
             {
-                yield return ReadXsvLine(delimiters).ToArray();
+                yield return ReadXsvLine(delimiters).ToList();
             }
         }
 
@@ -95,7 +96,7 @@ namespace HandyUtil.Text.Xsv
                     case TokenState.Empty:
                     case TokenState.AfterSeparator:
                         state = TokenState.Empty;
-                        if (!delimiters.Any(s => s.StartsWith(c.ToString())) && char.IsWhiteSpace(c))
+                        if (char.IsWhiteSpace(c) && !delimiters.Any(s => s.StartsWith(c.ToString())))
                         { break; }
 
                         if (c == '"')
@@ -110,7 +111,7 @@ namespace HandyUtil.Text.Xsv
                     case TokenState.NormalField:
                         {
                             token += c;
-                            var delimiter = delimiters.FirstOrDefault(s => token.ToString().EndsWith(s));
+                            var delimiter = delimiters.FirstOrDefault(s => token.EndsWith(s));
                             if (delimiter != null)
                             {
                                 yield return token.Substring(0, token.Length - delimiter.Length).TrimEnd();
@@ -144,7 +145,7 @@ namespace HandyUtil.Text.Xsv
                     case TokenState.AfterQuote:
                         {
                             token += c;
-                            var delimiter = delimiters.FirstOrDefault(s => token.ToString().EndsWith(s));
+                            var delimiter = delimiters.FirstOrDefault(s => token.EndsWith(s));
                             if (delimiter != null)
                             {
                                 state = TokenState.AfterSeparator;
@@ -178,30 +179,136 @@ namespace HandyUtil.Text.Xsv
         }
 
 #if net45
-        public async Task<string> ReadLineAsync()
+        public async static Task<IList<string>> Parse(string line, ICollection<string> delimiters, Func<Task<string>> followingLineSelector)
         {
-            return await BaseReader.ReadLineAsync();
+            var result = new List<string>();
+
+            if (string.IsNullOrEmpty(line))
+            { return result; }
+
+            var state = TokenState.Empty;
+            string token = "";
+
+            foreach (var c in line)
+            {
+                switch (state)
+                {
+                    case TokenState.Empty:
+                    case TokenState.AfterSeparator:
+                        state = TokenState.Empty;
+                        if (char.IsWhiteSpace(c) && !delimiters.Any(s => s.StartsWith(c.ToString())))
+                        { break; }
+
+                        if (c == '"')
+                        {
+                            state = TokenState.QuotedField;
+                            token += c;
+                            break;
+                        }
+                        state = TokenState.NormalField;
+                        goto case TokenState.NormalField;
+
+                    case TokenState.NormalField:
+                        {
+                            token += c;
+                            var delimiter = delimiters.FirstOrDefault(s => token.EndsWith(s));
+                            if (delimiter != null)
+                            {
+                                result.Add(token.Substring(0, token.Length - delimiter.Length).TrimEnd());
+                                state = TokenState.AfterSeparator;
+                                token = "";
+                            }
+                            break;
+                        }
+
+                    case TokenState.QuotedField:
+                        token += c;
+                        if (c == '"')
+                        {
+                            state = TokenState.EndQuote;
+                        }
+                        break;
+
+                    case TokenState.EndQuote:
+                        if (c == '"')
+                        {
+                            token += c;
+                            state = TokenState.QuotedField;
+                            break;
+                        }
+
+                        result.Add(token.Substring(1, token.Length - 2).Replace("\"\"", "\""));
+                        token = "";
+                        state = TokenState.AfterQuote;
+                        goto case TokenState.AfterQuote;
+
+                    case TokenState.AfterQuote:
+                        {
+                            token += c;
+                            var delimiter = delimiters.FirstOrDefault(s => token.EndsWith(s));
+                            if (delimiter != null)
+                            {
+                                state = TokenState.AfterSeparator;
+                                token = "";
+                            }
+                            break;
+                        }
+                }
+            }
+
+            if (state == TokenState.AfterQuote)
+            { return result; }
+
+            if (state == TokenState.QuotedField)
+            {
+                var followingLine = await followingLineSelector().ConfigureAwait(false);
+                var next = await Parse(token + Environment.NewLine + followingLine,
+                    delimiters, followingLineSelector);
+                result.AddRange(next);
+
+            }
+            else if (token != string.Empty || state == TokenState.AfterSeparator)
+            {
+                var tail = (state == TokenState.EndQuote)
+                    ? token.TrimEnd().Substring(1, token.Length - 2).Replace("\"\"", "\"")
+                    : token.TrimEnd();
+                result.Add(tail);
+            }
+            return result;
+        }
+#endif
+
+#if net45
+        public Task<string> ReadLineAsync()
+        {
+            return BaseReader.ReadLineAsync();
         }
 
-        public async Task<string[]> ReadXsvLineAsync(ICollection<string> delimiters)
+        public async Task<IList<string>> ReadXsvLineAsync(ICollection<string> delimiters)
         {
-            return await Task.Run(() => ReadXsvLine(delimiters).ToArray());
+            return await Parse(await ReadLineAsync().ConfigureAwait(false), delimiters, () => ReadLineAsync());
         }
 
-        public async Task<IList<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters)
+        public async Task<IList<IList<string>>> ReadXsvToEndAsync(ICollection<string> delimiters)
         {
-            return await Task.Run(() => ReadXsvToEnd(delimiters).ToList());
+            var result = new List<IList<string>>();
+            while (!EndOfData)
+            {
+                var line = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
+                result.Add(line);
+            }
+            return result;
         }
 
-        public IObservable<string[]> ReadXsvObservable(ICollection<string> delimiters)
+        public IObservable<IList<string>> ReadXsvObservable(ICollection<string> delimiters)
         {
-            return Observable.Create<string[]>(async (observer, ct) =>
+            return Observable.Create<IList<string>>(async (observer, ct) =>
             {
                 await SubscribeAsync(observer, ct, delimiters);
             });
         }
 
-        protected async Task SubscribeAsync(IObserver<string[]> observer, CancellationToken ct, ICollection<string> delimiters)
+        protected async Task SubscribeAsync(IObserver<IList<string>> observer, CancellationToken ct, ICollection<string> delimiters)
         {
             var line = 1;
             try
@@ -210,7 +317,7 @@ namespace HandyUtil.Text.Xsv
                 {
                     if (ct.IsCancellationRequested)
                     { break; }
-                    var row = await ReadXsvLineAsync(delimiters);
+                    var row = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
                     observer.OnNext(row);
                     line++;
                 }
@@ -228,19 +335,19 @@ namespace HandyUtil.Text.Xsv
             return Task.Factory.StartNew(() => BaseReader.ReadLine());
         }
 
-        public Task<string[]> ReadXsvLineAsync(ICollection<string> delimiters)
+        public Task<IList<string>> ReadXsvLineAsync(ICollection<string> delimiters)
         {
-            return Task.Factory.StartNew(() => ReadXsvLine(delimiters).ToArray());
+            return Task.Factory.StartNew(() => (IList<string>)ReadXsvLine(delimiters).ToList());
         }
 
-        public Task<IList<string[]>> ReadXsvToEndAsync(ICollection<string> delimiters)
+        public Task<IList<IList<string>>> ReadXsvToEndAsync(ICollection<string> delimiters)
         {
-            return Task.Factory.StartNew(() => (IList<string[]>)ReadXsvToEnd(delimiters).ToList());
+            return Task.Factory.StartNew(() => (IList<IList<string>>)ReadXsvToEnd(delimiters).ToList());
         }
 
-        public IObservable<string[]> ReadXsvObservable(ICollection<string> delimiters)
+        public IObservable<IList<string>> ReadXsvObservable(ICollection<string> delimiters)
         {
-            return Observable.Create<string[]>(observer =>
+            return Observable.Create<IList<string>>(observer =>
             {
                 var cts = new CancellationTokenSource();
                 var disposable = Observable.FromAsync(ct => SubscribeAsync(observer, ct, delimiters))
@@ -249,7 +356,7 @@ namespace HandyUtil.Text.Xsv
             });
         }
 
-        protected Task SubscribeAsync(IObserver<string[]> observer, CancellationToken ct, ICollection<string> delimiters)
+        protected Task SubscribeAsync(IObserver<IList<string>> observer, CancellationToken ct, ICollection<string> delimiters)
         {
             return Task.Factory.StartNew(() =>
             {
@@ -261,7 +368,7 @@ namespace HandyUtil.Text.Xsv
                         if (ct.IsCancellationRequested)
                         { break; }
 
-                        var row = ReadXsvLine(delimiters).ToArray();
+                        var row = ReadXsvLine(delimiters).ToList();
                         observer.OnNext(row);
                         line++;
                     }

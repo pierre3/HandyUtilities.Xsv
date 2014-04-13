@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-#if net40
+#if net40 || net45
 using System.Threading.Tasks;
 using System.Threading;
 
@@ -86,7 +86,7 @@ namespace HandyUtil.Text.Xsv
 
 #if net45
         public async Task<IDisposable> ReadAsyncObservable(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null,
-            Action<string[]> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
+            Action<IList<string>> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
         {
             if (xsvReader == null)
             { throw new ArgumentNullException("xsvReader"); }
@@ -132,7 +132,7 @@ namespace HandyUtil.Text.Xsv
                 _rows.Add(CreateXsvRow(headers, row));
             }
         }
-#else
+#endif
 #if net40
         protected Task<IList<string>> ReadHeaderAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
         {
@@ -192,7 +192,6 @@ namespace HandyUtil.Text.Xsv
                 OnError ?? (_ => { }),
                 OnCompleded ?? (() => { }));
         }
-#endif
 #endif
 
         public void Write(TextWriter writer, string delimiter = null, WriterSettings settings = null)

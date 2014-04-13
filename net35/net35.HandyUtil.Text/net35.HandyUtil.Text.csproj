@@ -65,8 +65,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>XsvField.t4.tt</DependentUpon>
     </Compile>
-    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvFieldBindingEventArgs.cs">
-      <Link>XsvFieldBindingEventArgs.cs</Link>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvFieldUpdatedEventArgs.cs">
+      <Link>XsvFieldUpdatedEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\..\HandyUtil.Text\Xsv\XsvReader.cs">
       <Link>XsvReader.cs</Link>
