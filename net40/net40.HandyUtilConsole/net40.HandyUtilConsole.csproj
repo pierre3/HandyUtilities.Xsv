@@ -33,12 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HandyUtil.Extensions">
-      <HintPath>..\..\packages\HandyUtil.Extensions.0.5.0.0\lib\net40\HandyUtil.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="HandyUtil.Text">
-      <HintPath>..\..\packages\HandyUtilities.Xsv.0.5.0.1\lib\net40\HandyUtil.Text.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -87,6 +81,7 @@
   <ItemGroup>
     <Content Include="..\..\HandyUtilConsole\ModelShips.txt">
       <Link>ModelShips.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +89,16 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\net40.HandyUtil.Extensions\net40.HandyUtil.Extensions.csproj">
+      <Project>{4497b7a2-d81c-4dcd-91d9-ebc98c1e56e2}</Project>
+      <Name>net40.HandyUtil.Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\net40.HandyUtil.Text\net40.HandyUtil.Text.csproj">
+      <Project>{77c97d10-544b-4236-80ab-aacbef9ad012}</Project>
+      <Name>net40.HandyUtil.Text</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

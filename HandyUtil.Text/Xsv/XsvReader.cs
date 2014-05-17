@@ -6,9 +6,9 @@ using System.Text;
 
 #if net40 || net45
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Reactive.Disposables;
 #endif
 
 namespace HandyUtil.Text.Xsv
@@ -276,9 +276,7 @@ namespace HandyUtil.Text.Xsv
             }
             return result;
         }
-#endif
 
-#if net45
         public Task<string> ReadLineAsync()
         {
             return BaseReader.ReadLineAsync();
@@ -300,65 +298,9 @@ namespace HandyUtil.Text.Xsv
             return result;
         }
 
-        public IObservable<IList<string>> ReadXsvObservable(ICollection<string> delimiters)
+        public IObservable<IList<string>> ReadXsvAsObservable(ICollection<string> delimiters)
         {
             return Observable.Create<IList<string>>(async (observer, ct) =>
-            {
-                await SubscribeAsync(observer, ct, delimiters);
-            });
-        }
-
-        protected async Task SubscribeAsync(IObserver<IList<string>> observer, CancellationToken ct, ICollection<string> delimiters)
-        {
-            var line = 1;
-            try
-            {
-                while (!EndOfData)
-                {
-                    if (ct.IsCancellationRequested)
-                    { break; }
-                    var row = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
-                    observer.OnNext(row);
-                    line++;
-                }
-                observer.OnCompleted();
-            }
-            catch (Exception e)
-            {
-                observer.OnError(new XsvReaderException(line, e.Message, e));
-            }
-        }
-#else
-#if net40
-        public Task<string> ReadLineAsync()
-        {
-            return Task.Factory.StartNew(() => BaseReader.ReadLine());
-        }
-
-        public Task<IList<string>> ReadXsvLineAsync(ICollection<string> delimiters)
-        {
-            return Task.Factory.StartNew(() => (IList<string>)ReadXsvLine(delimiters).ToList());
-        }
-
-        public Task<IList<IList<string>>> ReadXsvToEndAsync(ICollection<string> delimiters)
-        {
-            return Task.Factory.StartNew(() => (IList<IList<string>>)ReadXsvToEnd(delimiters).ToList());
-        }
-
-        public IObservable<IList<string>> ReadXsvObservable(ICollection<string> delimiters)
-        {
-            return Observable.Create<IList<string>>(observer =>
-            {
-                var cts = new CancellationTokenSource();
-                var disposable = Observable.FromAsync(ct => SubscribeAsync(observer, ct, delimiters))
-                    .Subscribe(_ => { }, observer.OnError, observer.OnCompleted);
-                return new CompositeDisposable(disposable, new CancellationDisposable(cts));
-            });
-        }
-
-        protected Task SubscribeAsync(IObserver<IList<string>> observer, CancellationToken ct, ICollection<string> delimiters)
-        {
-            return Task.Factory.StartNew(() =>
             {
                 var line = 1;
                 try
@@ -367,8 +309,8 @@ namespace HandyUtil.Text.Xsv
                     {
                         if (ct.IsCancellationRequested)
                         { break; }
-
-                        var row = ReadXsvLine(delimiters).ToList();
+                        
+                        var row = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
                         observer.OnNext(row);
                         line++;
                     }
@@ -380,6 +322,49 @@ namespace HandyUtil.Text.Xsv
                 }
             });
         }
+#else
+#if net40
+        public IObservable<IList<string>> ReadXsvAsObservable(ICollection<string> delimiters)
+        {
+            return ReadXsvAsObservable(delimiters, null);     
+        }
+
+        public IObservable<IList<string>> ReadXsvAsObservable(ICollection<string> delimiters, System.Reactive.Concurrency.IScheduler scheduler)
+        {
+            if (scheduler == null)
+            {
+                scheduler = System.Reactive.Concurrency.ThreadPoolScheduler.Instance;
+            }
+
+            return Observable.Create<IList<string>>(observer =>
+            {
+                CancellationTokenSource cts = new CancellationTokenSource();
+                var disposable = Observable.Start(()=>
+                {
+                    var line = 1;
+                    try
+                    {
+                        while (!EndOfData)
+                        {
+                            if (cts.IsCancellationRequested)
+                            { break; }
+                            
+                            var row = ReadXsvLine(delimiters).ToList();
+                            observer.OnNext(row);
+                            line++;
+                        }
+                        observer.OnCompleted();
+                    }
+                    catch (Exception e)
+                    {
+                        observer.OnError(new XsvReaderException(line, e.Message, e));
+                    }    
+                }, scheduler).Subscribe(_ => { }, observer.OnError, observer.OnCompleted);
+
+                return new CompositeDisposable(disposable, new CancellationDisposable(cts));
+            });
+        }
+        
 #endif
 #endif
 
@@ -392,6 +377,5 @@ namespace HandyUtil.Text.Xsv
             EndQuote,
             AfterQuote
         }
-
     }
 }

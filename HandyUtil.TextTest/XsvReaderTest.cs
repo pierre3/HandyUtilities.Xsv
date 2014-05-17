@@ -47,7 +47,7 @@ four"" ";
   u
    r""";
 
-        static new IList<string>[] expected02 = new[]{
+        static IList<string>[] expected02 = new[]{
             new List<string>(){ "column_1", "column_2", "column_3", "column_4" },
             new List<string>(){ "  first", "second  ", "  third  ", "four\tth " },
             new List<string>(){ "", "0002", "", "", "0005","0006", "" },
@@ -104,8 +104,12 @@ four"" ";
             using (var reader = new XsvReader(new StringReader(testData01)))
             {
                 csv.Add(reader.ReadXsvLine(new[] { "," }).ToArray());
-
-                IDisposable disposable = reader.ReadXsvObservable(new[] { "," }).Subscribe(row =>
+#if net40
+                IDisposable disposable = reader.ReadXsvAsObservable(new[] { "," }, System.Reactive.Concurrency.ThreadPoolScheduler.Instance).Subscribe(row =>
+#endif
+#if net45
+                IDisposable disposable = reader.ReadXsvAsObservable(new[] { "," }).Subscribe(row =>
+#endif
                 {
                     csv.Add(row);
                     Console.WriteLine("OnNext");
@@ -140,23 +144,6 @@ four"" ";
             }
         }
 #endif
-#if net40
-        [TestMethod]
-        public void ReadXsvToEndAsyncTest()
-        {
-            using (var reader2 = new XsvReader(new StringReader(testData01)))
-            {
-                reader2.ReadXsvToEndAsync(new[] { "," }).ContinueWith(readTask =>
-                {
-                    var rows = readTask.Result;
-                    foreach (var row in rows.Zip(expected01, (l, r) => new { expected = r, actual = l }))
-                    {
-                        Console.WriteLine(row.actual.ConcatWith("|") + "\\n");
-                        CollectionAssert.AreEqual((ICollection)row.expected, (ICollection)row.actual);
-                    }
-                });
-            }
-        }
-#endif
+
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace HandyUtilConsole
 {
@@ -21,21 +22,27 @@ namespace HandyUtilConsole
                 Console.WriteLine("[o]- ReadXsvObservable");
                 Console.WriteLine("[a]- TextFieldParser");
                 Console.WriteLine("[p]- Perfomance");
+                Console.WriteLine("[q]- Perfomance2");
                 Console.WriteLine("[e]- Exit");
                 var key = Console.ReadKey(false);
                 switch (key.KeyChar)
                 {
                     case 'o':
-                        using (var reader = new XsvReader(new StringReader(Properties.Resources.ModelShips)))
+                        using (var reader = new XsvReader(new StreamReader(@".\ModelShips.txt")))
+                        //using (var reader = new XsvReader(new StringReader(Properties.Resources.ModelShips)))
                         {
+                            var id = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                            Console.WriteLine("start:" + id);
                             var disposable = ReadXsvObservable(reader);
-
                             Console.ReadKey(false);
+                            Console.WriteLine("current:" + id);
                             disposable.Dispose();
                             Console.WriteLine("Disposed");
+                            
                         }
                         break;
                     case 'r':
+                        //using (var reader = new XsvReader(new StreamReader(@".\ModelShips.txt")))
                         using (var reader = new XsvReader(new StringReader(Properties.Resources.ModelShips)))
                         {
                             ReadXsvAsync(reader).Wait();
@@ -101,7 +108,13 @@ namespace HandyUtilConsole
                         }
                         sw.Stop();
                         Console.WriteLine(string.Format("XsvReader: {0} ms", sw.ElapsedMilliseconds));
+
                         break;
+#if net45
+                    case 'q':
+                        ReadAsyncTest().Wait();
+                        break;
+#endif
                     case 'e':
                         return;
                     
@@ -109,7 +122,70 @@ namespace HandyUtilConsole
                 Console.WriteLine("***-***-***-***");
             }
         }
-        
+
+#if net45
+        static async Task ReadAsyncTest() 
+        {
+            var sw = new System.Diagnostics.Stopwatch();
+            var lines = String.Join(Environment.NewLine, Enumerable.Range(1, 10000)
+                .Select(_ => Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString()));
+            using (var reader = new XsvReader(new StringReader(lines)))
+            {
+                while (!reader.EndOfData)
+                {
+                    await reader.ReadLineAsync().ConfigureAwait(false);
+                }
+            }
+
+            sw.Restart();
+            using (var reader = new XsvReader(new StringReader(lines)))
+            {
+                while (!reader.EndOfData)
+                {
+                    await reader.ReadLineAsync().ConfigureAwait(false);
+                }
+            }
+            sw.Stop();
+            Console.WriteLine(string.Format("ReadlineAsync: {0} ms", sw.ElapsedMilliseconds));
+
+            //sw.Restart();
+            //using (var reader = new XsvReader(new StringReader(lines)))
+            //{
+            //    while (!reader.EndOfData)
+            //    {
+            //        await reader.ReadLineAsync2().ConfigureAwait(false);
+            //    }
+            //}
+            //sw.Stop();
+            //Console.WriteLine(string.Format("ReadlineAsync2: {0} ms", sw.ElapsedMilliseconds));
+        }
+
+        static IDisposable ReadXsvObservable(XsvReader reader)
+        {
+            var csv = new List<IList<string>>();
+
+            var header = reader.ReadXsvLine(new[] { "," }).ToArray();
+            csv.Add(header);
+
+            return reader.ReadXsvAsObservable(new[] { "," }).Subscribe(row =>
+            {
+                csv.Add(row);
+                Console.WriteLine("OnNext:" + System.Threading.Thread.CurrentThread.ManagedThreadId + " => " + row.ConcatWith(", "));
+            },
+            e => Console.WriteLine("OnError " + e.Message),
+            () =>
+            {
+                Console.WriteLine("OnCompleted:" +System.Threading.Thread.CurrentThread.ManagedThreadId);
+                Console.WriteLine("");
+                foreach (var row in csv)
+                {
+                    Console.WriteLine(row.Select(s => s.MakeXsvField(new[] { "," })).ConcatWith(", "));
+                }
+            });
+
+        }
+#endif
+
         static IEnumerable<string[]> Parse(string data) 
         {
             using (var sr = new StringReader(data))
@@ -135,23 +211,39 @@ namespace HandyUtilConsole
             }
         }
 
+        
+#if net45
+        static async Task ReadXsvAsync(XsvReader reader)
+        {
+            var currentId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            Console.WriteLine("start:" + System.Threading.Thread.CurrentThread.ManagedThreadId);
+            var result = await reader.ReadXsvToEndAsync(new[] { "," });
+            Console.WriteLine("end:" + System.Threading.Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("current:" + currentId);
+            foreach (var row in result)
+            {
+                Console.WriteLine(row.Select(s => s.MakeXsvField(new[] { "," })).ConcatWith(", "));
+            }
+        }
+#else
+#if net40
         static IDisposable ReadXsvObservable(XsvReader reader)
         {
-            var csv = new List<string[]>();
+            var csv = new List<IList<string>>();
 
             var header = reader.ReadXsvLine(new[] { "," }).ToArray();
             csv.Add(header);
 
-            return reader.ReadXsvObservable(new[] { "," }).Subscribe(row =>
-            {
-                csv.Add(row);
-                Console.WriteLine("OnNext => " + row.ConcatWith(", "));
-                Delay(100).Wait();
-            },
+            return reader.ReadXsvAsObservable(new[] { "," })
+                .Subscribe(row =>
+                {
+                    csv.Add(row);
+                    Console.WriteLine("OnNext:" + System.Threading.Thread.CurrentThread.ManagedThreadId + " => " + row.ConcatWith(", "));
+                },
             e => Console.WriteLine("OnError " + e.Message),
             () =>
             {
-                Console.WriteLine("OnCompleted.");
+                Console.WriteLine("OnCompleted:" + System.Threading.Thread.CurrentThread.ManagedThreadId);
                 Console.WriteLine("");
                 foreach (var row in csv)
                 {
@@ -160,39 +252,13 @@ namespace HandyUtilConsole
             });
 
         }
-#if net45
-        static async Task ReadXsvAsync(XsvReader reader)
-        {
-            var result = await reader.ReadXsvToEndAsync(new[] { "," });
 
-            foreach (var row in result)
-            {
-                Console.WriteLine(row.Select(s => s.MakeXsvField(new[] { "," })).ConcatWith(", "));
-            }
-        }
-#else
-#if net40
         static Task ReadXsvAsync(XsvReader reader)
         {
-            return reader.ReadXsvToEndAsync(new[] { "," }).ContinueWith(task =>
-            {
-                foreach (var row in task.Result )
-                {
-                    Console.WriteLine(row.Select(s => s.MakeXsvField(new[] { "," })).ConcatWith(", "));
-                }
-            });
+            return Task.Factory.StartNew(() => { Console.WriteLine("Not Supported."); });
         }
 #endif
 #endif
-        static Task Delay(int ms)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                long startThicks = DateTime.Now.Ticks;
-                while (DateTime.Now.Ticks - startThicks < ms * 10000) ;
-                
-            });
-        }
-
+        
     }
 }

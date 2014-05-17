@@ -48,17 +48,17 @@ namespace HandyUtil.Text.Xsv
             this._rows = rows;
         }
 
-        protected IList<string> ReadHeader(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        protected IList<string> ReadHeader(XsvReader xsvReader, bool headerExists, IList<string> headerStrings = null)
         {
-            var header = headerStrings ?? Enumerable.Empty<string>();
+            var header = headerStrings ?? new List<string>();
             if (headerExists)
             {
-                header = xsvReader.ReadXsvLine(Delimiters);
+                header = xsvReader.ReadXsvLine(Delimiters).ToList();
             }
-            return header.ToList();
+            return header;
         }
 
-        public void Read(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        public void Read(XsvReader xsvReader, bool headerExists, IList<string> headerStrings = null)
         {
             if (xsvReader == null)
             { throw new ArgumentNullException("xsvReader"); }
@@ -73,7 +73,7 @@ namespace HandyUtil.Text.Xsv
             }
         }
 
-        public void Read(Stream stream, bool headerExists, IEnumerable<string> headerStrings = null, Encoding encoding = null)
+        public void Read(Stream stream, bool headerExists, IList<string> headerStrings = null, Encoding encoding = null)
         {
             if (stream == null)
             { throw new ArgumentNullException("stream"); }
@@ -95,7 +95,7 @@ namespace HandyUtil.Text.Xsv
 
             var headers = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
             _columnHeaders = new XsvColumnHeaders(headers);
-            return xsvReader.ReadXsvObservable(Delimiters).Subscribe(
+            return xsvReader.ReadXsvAsObservable(Delimiters).Subscribe(
                 row =>
                 {
                     _rows.Add(CreateXsvRow(headers, row));
@@ -134,42 +134,7 @@ namespace HandyUtil.Text.Xsv
         }
 #endif
 #if net40
-        protected Task<IList<string>> ReadHeaderAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                var header = headerStrings ?? Enumerable.Empty<string>();
-                if (headerExists)
-                {
-                    header = xsvReader.ReadXsvLine(Delimiters);
-                }
-                return (IList<string>)header.ToList();
-            });
-        }
-
-        public Task ReadAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
-        {
-            if (xsvReader == null)
-            { throw new ArgumentNullException("xsvReader"); }
-            _rows.Clear();
-
-            return ReadHeaderAsync(xsvReader, headerExists, headerStrings).ContinueWith(readHeaderTask =>
-            {
-                var headers = readHeaderTask.Result;
-                _columnHeaders = new XsvColumnHeaders(headers);
-
-                return xsvReader.ReadXsvToEndAsync(Delimiters).ContinueWith(readTask =>
-                {
-                    var rows = readTask.Result;
-                    foreach (var row in rows)
-                    {
-                        _rows.Add(CreateXsvRow(headers, row));
-                    }
-                });
-            });
-        }
-
-        public IDisposable ReadObservable(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null,
+        public IDisposable ReadObservable(XsvReader xsvReader, bool headerExists, IList<string> headerStrings = null,
            Action<IEnumerable<string>> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
         {
             if (xsvReader == null)
@@ -179,8 +144,8 @@ namespace HandyUtil.Text.Xsv
 
             var headers = ReadHeader(xsvReader, headerExists, headerStrings);
             _columnHeaders = new XsvColumnHeaders(headers);
-            var cts = new CancellationTokenSource();
-            return xsvReader.ReadXsvObservable(Delimiters).Subscribe(
+            
+            return xsvReader.ReadXsvAsObservable(Delimiters).Subscribe(
                 row =>
                 {
                     _rows.Add(CreateXsvRow(headers, row));
