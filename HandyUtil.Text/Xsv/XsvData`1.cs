@@ -4,19 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-
 #if net40 || net45
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-
 #endif
 
 namespace HandyUtil.Text.Xsv
 {
+
     public class XsvData<T> where T : XsvDataRow, new()
     {
         protected XsvColumnHeaders _columnHeaders;
-        protected IList<T> _rows;
+        protected IList<T> _items;
 
         public IEnumerable<string> ColumnHeaders
         {
@@ -25,190 +25,185 @@ namespace HandyUtil.Text.Xsv
 
         public IList<T> Rows
         {
-            get { return _rows; }
+            get { return _items; }
         }
 
-        public ICollection<string> Delimiters { get; protected set; }
+        public XsvDataSettings Settings { get; protected set; }
 
-        public string DefaultColumnName { set; get; }
-
-        public XsvData(ICollection<string> delimiters, string defaultColumnName = "_column_")
+        public XsvData()
         {
-            if (delimiters == null || delimiters.Count() == 0)
-            { throw new ArgumentException("delimiters"); }
-
-            this._rows = new List<T>();
-            this.Delimiters = delimiters;
-            this.DefaultColumnName = defaultColumnName;
+            this.Settings = new XsvDataSettings();
+            this._items = new List<T>();
         }
+
+        public XsvData(XsvDataSettings settings)
+        {
+            if (settings.Delimiters == null || settings.Delimiters.Count() == 0)
+            { throw new ArgumentException("settings.Delimiters"); }
+
+            this.Settings = settings;
+            this._items = new List<T>();
+        }
+
+        public XsvData(ICollection<string> delimiters)
+            : this(new XsvDataSettings() { Delimiters = delimiters })
+        { }
 
         public XsvData(IList<T> rows, ICollection<string> delimiters)
             : this(delimiters)
         {
-            this._rows = rows;
+            this._items = rows;
         }
 
-        protected IList<string> ReadHeader(XsvReader xsvReader, bool headerExists, IList<string> headerStrings = null)
+        public XsvData(IList<T> rows, XsvDataSettings settings)
+            : this(settings)
         {
-            var header = headerStrings ?? new List<string>();
-            if (headerExists)
-            {
-                header = xsvReader.ReadXsvLine(Delimiters).ToList();
-            }
-            return header;
+            this._items = rows;
         }
 
-        public void Read(XsvReader xsvReader, bool headerExists, IList<string> headerStrings = null)
+        public void Read(TextReader reader)
         {
-            if (xsvReader == null)
-            { throw new ArgumentNullException("xsvReader"); }
-            _rows.Clear();
+            if (reader == null)
+            { throw new ArgumentNullException("reader"); }
 
-            var headers = ReadHeader(xsvReader, headerExists, headerStrings);
-            _columnHeaders = new XsvColumnHeaders(headers);
-            var rows = xsvReader.ReadXsvToEnd(Delimiters);
-            foreach (var row in rows)
+            using (var xsvReader = new XsvReader(reader, Settings.CommentToken))
             {
-                _rows.Add(CreateXsvRow(headers, row));
+                var headers = ReadHeader(xsvReader);
+                _columnHeaders = new XsvColumnHeaders(headers);
+                var rows = xsvReader.ReadXsvToEnd(Settings.Delimiters);
+
+                _items.Clear();
+                foreach (var row in rows)
+                {
+                    _items.Add(CreateXsvRow(headers, row));
+                }
             }
         }
 
-        public void Read(Stream stream, bool headerExists, IList<string> headerStrings = null, Encoding encoding = null)
+        public void Read(Stream stream, Encoding encoding = null)
         {
             if (stream == null)
             { throw new ArgumentNullException("stream"); }
 
-            using (var xsvReader = new XsvReader(stream, encoding))
+            using (var reader = new StreamReader(stream, encoding))
             {
-                Read(xsvReader, headerExists, headerStrings);
+                Read(reader);
             }
         }
 
 #if net45
-        public async Task<IDisposable> ReadAsyncObservable(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null,
-            Action<IList<string>> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
+        
+        public async Task ReadAsync(TextReader reader)
         {
-            if (xsvReader == null)
-            { throw new ArgumentNullException("xsvReader"); }
+            if (reader == null)
+            { throw new ArgumentNullException("reader"); }
 
-            _rows.Clear();
+            using (var xsvReader = new XsvReader(reader, Settings.CommentToken))
+            {
+                var headers = await ReadHeaderAsync(xsvReader);
+                _columnHeaders = new XsvColumnHeaders(headers);
+                var rows = await xsvReader.ReadXsvToEndAsync(Settings.Delimiters);
 
-            var headers = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
-            _columnHeaders = new XsvColumnHeaders(headers);
-            return xsvReader.ReadXsvAsObservable(Delimiters).Subscribe(
-                row =>
+                _items.Clear();
+                foreach (var row in rows)
                 {
-                    _rows.Add(CreateXsvRow(headers, row));
-                    if (OnNext != null)
-                    {
-                        OnNext(row);
-                    }
-                },
-                OnError ?? (_ => { }),
-                OnCompleded ?? (() => { }));
-        }
-
-        protected async Task<IList<string>> ReadHeaderAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
-        {
-            var header = headerStrings ?? Enumerable.Empty<string>();
-            if (headerExists)
-            {
-                header = await xsvReader.ReadXsvLineAsync(Delimiters);
+                    _items.Add(CreateXsvRow(headers, row));
+                }
             }
-            return header.ToList();
         }
 
-        public async Task ReadAsync(XsvReader xsvReader, bool headerExists, IEnumerable<string> headerStrings = null)
+        public async Task ReadAsync(Stream stream, Encoding encoding = null)
         {
-            if (xsvReader == null)
-            { throw new ArgumentNullException("xsvReader"); }
-            _rows.Clear();
+            if (stream == null)
+            { throw new ArgumentNullException("stream"); }
 
-            var headers = await ReadHeaderAsync(xsvReader, headerExists, headerStrings);
-            _columnHeaders = new XsvColumnHeaders(headers);
-            var rows = await xsvReader.ReadXsvToEndAsync(Delimiters);
-            foreach (var row in rows)
+            using (var reader = new StreamReader(stream, encoding))
             {
-                _rows.Add(CreateXsvRow(headers, row));
+                await ReadAsync(reader);
+            }
+        }
+
+        public async Task ReadAsync(TextReader reader, CancellationToken cancellationToken)
+        {
+            if (reader == null)
+            { throw new ArgumentNullException("reader"); }
+
+            if (cancellationToken == null)
+            { throw new ArgumentNullException("cancellationToken"); }
+
+            if (cancellationToken.IsCancellationRequested)
+            { return; }
+
+            using (var xsvReader = new XsvReader(reader, Settings.CommentToken))
+            {
+                var headers = await ReadHeaderAsync(xsvReader);
+                _columnHeaders = new XsvColumnHeaders(headers);
+
+                _items.Clear();
+                while (!xsvReader.EndOfData)
+                {
+                    if (cancellationToken.IsCancellationRequested) 
+                    { return; }
+
+                    var row = await xsvReader.ReadXsvLineAsync(Settings.Delimiters);
+                    _items.Add(CreateXsvRow(headers, row));
+                }
+            }
+        }
+
+        public async Task ReadAsync(Stream stream, CancellationToken cancellationToken, Encoding encoding = null)
+        {
+            if (stream == null)
+            { throw new ArgumentNullException("stream"); }
+
+            if (cancellationToken == null)
+            { throw new ArgumentNullException("cancellationToken"); }
+
+            if (cancellationToken.IsCancellationRequested)
+            { return; }
+
+            using (var reader = new StreamReader(stream, encoding))
+            {
+                await ReadAsync(reader, cancellationToken);
             }
         }
 #endif
-#if net40
-        public IDisposable ReadObservable(XsvReader xsvReader, bool headerExists, IList<string> headerStrings = null,
-           Action<IEnumerable<string>> OnNext = null, Action<Exception> OnError = null, Action OnCompleded = null)
+
+        public void Write(TextWriter writer, string delimiter = null, XsvWriteSettings writerSettings = null)
         {
-            if (xsvReader == null)
-            { throw new ArgumentNullException("xsvReader"); }
-
-            _rows.Clear();
-
-            var headers = ReadHeader(xsvReader, headerExists, headerStrings);
-            _columnHeaders = new XsvColumnHeaders(headers);
-            
-            return xsvReader.ReadXsvAsObservable(Delimiters).Subscribe(
-                row =>
-                {
-                    _rows.Add(CreateXsvRow(headers, row));
-                    if (OnNext != null)
-                    {
-                        OnNext(row);
-                    }
-                },
-                OnError ?? (_ => { }),
-                OnCompleded ?? (() => { }));
-        }
-#endif
-
-        public void Write(TextWriter writer, string delimiter = null, WriterSettings settings = null)
-        {
-            if (settings == null)
+            if (writerSettings == null)
             {
-                settings = WriterSettings.Default;
+                writerSettings = XsvWriteSettings.Default;
             }
             if (delimiter == null)
             {
-                delimiter = Delimiters.First();
+                delimiter = Settings.Delimiters.First();
             }
 
-            if (settings.ColumnSynchronises)
+            if (writerSettings.SynchronisesColumn)
             {
                 SynchronizeColumns();
             }
 
-            if (settings.HeaderOutputs)
+            if (writerSettings.OutputsHeader)
             {
-                writer.WriteLine(_columnHeaders.OutputString(Delimiters, delimiter));
+                writer.WriteLine(_columnHeaders.OutputString(Settings.Delimiters, delimiter));
             }
 
             foreach (var row in Rows)
             {
-                writer.WriteLine(row.OutputFields(Delimiters, delimiter, settings.FieldUpdates));
+                writer.WriteLine(row.OutputFields(Settings.Delimiters, delimiter, writerSettings.UpdatesField));
             }
         }
 
         public void SynchronizeColumns()
         {
-            _rows = _columnHeaders.SynchronizeColumns(_rows).ToList();
+            _items = _columnHeaders.SynchronizeColumns(_items).ToList();
         }
 
         public void Update()
         {
             UpdateFields();
-        }
-
-        protected virtual T CreateXsvRow(IEnumerable<string> header, IEnumerable<string> fields)
-        {
-            var row = new T();
-            row.SetFields(header, fields, DefaultColumnName);
-            return row;
-        }
-
-        protected virtual void UpdateFields()
-        {
-            foreach (var row in Rows)
-            {
-                row.Update();
-            }
         }
 
         public void SetColumnHeaders(IEnumerable<string> source)
@@ -263,17 +258,46 @@ namespace HandyUtil.Text.Xsv
 
         }
 
-        public class WriterSettings
+        protected virtual T CreateXsvRow(IEnumerable<string> header, IEnumerable<string> fields)
         {
-            public static readonly WriterSettings Default = new WriterSettings()
-            {
-                HeaderOutputs = true,
-                FieldUpdates = true,
-                ColumnSynchronises = true
-            };
-            public bool HeaderOutputs { set; get; }
-            public bool FieldUpdates { set; get; }
-            public bool ColumnSynchronises { set; get; }
+            var row = new T();
+            row.SetFields(header, fields, Settings.DefaultColumnName);
+            return row;
         }
+
+        protected virtual void UpdateFields()
+        {
+            foreach (var row in Rows)
+            {
+                row.Update();
+            }
+        }
+
+        protected IList<string> ReadHeader(XsvReader xsvReader)
+        {
+            if (xsvReader == null)
+            { throw new ArgumentNullException("xsvReader"); }
+
+            var header = Settings.HeaderStrings ?? new List<string>();
+            if (Settings.HeaderExists)
+            {
+                header = xsvReader.ReadXsvLine(Settings.Delimiters).ToList();
+            }
+            return header;
+        }
+
+#if net45
+        protected async Task<IList<string>> ReadHeaderAsync(XsvReader xsvReader)
+        {
+            var header = Settings.HeaderStrings ?? Enumerable.Empty<string>();
+            if (Settings.HeaderExists)
+            {
+                header = await xsvReader.ReadXsvLineAsync(Settings.Delimiters);
+            }
+            return header.ToList();
+        }
+#endif
+
+        
     }
 }

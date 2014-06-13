@@ -32,26 +32,31 @@ namespace HandyUtil.Text.Xsv
             }
         }
 
-        public XsvReader(Stream stream, Encoding encoding)
+        public string CommentString { get; set; }
+
+        public XsvReader(Stream stream, Encoding encoding, string commentString = null)
         {
             if (stream == null)
             { throw new ArgumentNullException("stream"); }
 
-            BaseReader = new StreamReader(stream, encoding);
+            this.BaseReader = new StreamReader(stream, encoding);
+            this.CommentString = commentString;
         }
 
-        public XsvReader(Stream stream)
+        public XsvReader(Stream stream, string commentString = null)
         {
             if (stream == null)
             { throw new ArgumentNullException("stream"); }
-            BaseReader = new StreamReader(stream);
+            this.BaseReader = new StreamReader(stream);
+            this.CommentString = commentString;
         }
 
-        public XsvReader(TextReader reader)
+        public XsvReader(TextReader reader, string commentString = null)
         {
             if (reader == null)
             { throw new ArgumentNullException("reader"); }
-            BaseReader = reader;
+            this.BaseReader = reader;
+            this.CommentString = commentString;
         }
 
         public void Dispose()
@@ -65,7 +70,17 @@ namespace HandyUtil.Text.Xsv
 
         public string ReadLine()
         {
-            return BaseReader.ReadLine();
+            if (string.IsNullOrEmpty(CommentString))
+            {
+                return BaseReader.ReadLine();
+            }
+
+            string line = "";
+            do
+            {
+                line = BaseReader.ReadLine();
+            } while (line != null && line.StartsWith(CommentString));
+            return line;
         }
 
         public IEnumerable<string> ReadXsvLine(ICollection<string> delimiters)
@@ -277,9 +292,20 @@ namespace HandyUtil.Text.Xsv
             return result;
         }
 
-        public Task<string> ReadLineAsync()
+        public async Task<string> ReadLineAsync()
         {
-            return BaseReader.ReadLineAsync();
+            if (string.IsNullOrEmpty(CommentString))
+            {
+                return await BaseReader.ReadLineAsync();
+            }
+
+            string line = "";
+            do
+            {
+                line = await BaseReader.ReadLineAsync();
+            } while (line != null && line.StartsWith(CommentString));
+            return line;
+
         }
 
         public async Task<IList<string>> ReadXsvLineAsync(ICollection<string> delimiters)
@@ -309,7 +335,7 @@ namespace HandyUtil.Text.Xsv
                     {
                         if (ct.IsCancellationRequested)
                         { break; }
-                        
+
                         var row = await ReadXsvLineAsync(delimiters).ConfigureAwait(false);
                         observer.OnNext(row);
                         line++;

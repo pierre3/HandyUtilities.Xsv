@@ -64,6 +64,9 @@
     <Compile Include="..\..\HandyUtil.Text\Xsv\XsvDataRow`1.cs">
       <Link>XsvDataRow`1.cs</Link>
     </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvDataSettings.cs">
+      <Link>XsvDataSettings.cs</Link>
+    </Compile>
     <Compile Include="..\..\HandyUtil.Text\Xsv\XsvData`1.cs">
       <Link>XsvData`1.cs</Link>
     </Compile>
@@ -84,6 +87,9 @@
     </Compile>
     <Compile Include="..\..\HandyUtil.Text\Xsv\XsvReaderException.cs">
       <Link>XsvReaderException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\HandyUtil.Text\Xsv\XsvWriteSettings.cs">
+      <Link>XsvWriteSettings.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

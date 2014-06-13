@@ -49,9 +49,9 @@ namespace HendyUtil.TextTest
             };
 
             var target = new TypedXsvData<ShipModel>(new[] { "," }, isAutoBinding: true);
-            using (var reader = new XsvReader(new System.IO.StringReader(data)))
+            using (var reader = new System.IO.StringReader(data))
             {
-                target.Read(reader, true);
+                target.Read(reader);
             }
 
             foreach (var x in target.Rows.Zip(expected, (a, b) => new { row = a, exp = b }))
@@ -84,11 +84,17 @@ namespace HendyUtil.TextTest
                 new { 品番 = 321, 船種 = "軽巡洋艦", 品名 = "鬼怒", ふりがな = "きぬ", 税込価格 = 1365, 本体価格 = 1300, メーカー = Maker.Ｔ }
             };
 
-            var target = new TypedXsvData<ShipModelB>(new[] { ",", "　" }, isAutoBinding: true);
-            target.DefaultColumnName = "defaultColumn_";
-            using (var reader = new XsvReader(new StringReader(data)))
+            var target = new TypedXsvData<ShipModelB>(
+                new XsvDataSettings()
+                {
+                    HeaderExists = false,
+                    Delimiters = new[] { ",", "　" },
+                    DefaultColumnName = "defaultColumn_"
+                }, isAutoBinding: true);
+
+            using (var reader = new StringReader(data))
             {
-                target.Read(reader, headerExists: false);
+                target.Read(reader);
             }
 
             foreach (var x in target.Rows.Zip(expected, (a, b) => new { row = a, exp = b }))
@@ -102,9 +108,11 @@ namespace HendyUtil.TextTest
                 Assert.AreEqual(x.exp.メーカー, x.row["defaultColumn_6"].AsEnum<Maker>());
             }
 
-            using (var reader = new XsvReader(new StringReader(data)))
+            target.Settings.HeaderExists = false;
+            target.Settings.HeaderStrings = new[] { "品番", "船種", "品名", "ふりがな", "税込価格", "本体価格", "メーカー" };
+            using (var reader = new StringReader(data))
             {
-                target.Read(reader, false, new[] { "品番", "船種", "品名", "ふりがな", "税込価格", "本体価格", "メーカー" });
+                target.Read(reader);
             }
 
             foreach (var x in target.Rows.Zip(expected, (a, b) => new { row = a, exp = b }))
@@ -156,9 +164,9 @@ namespace HendyUtil.TextTest
                 e.Row["本体価格"] = new XsvField(e.Fields.本体価格, "0,000￥");
                 e.Row["メーカー"] = new XsvField(e.Fields.メーカー);
             };
-            using (var reader = new XsvReader(new System.IO.StringReader(data)))
+            using (var reader = new System.IO.StringReader(data))
             {
-                csv.Read(reader, true);
+                csv.Read(reader);
             }
 
             foreach (var x in csv.Rows.Zip(expected, (a, b) => new { row = a, exp = b }))

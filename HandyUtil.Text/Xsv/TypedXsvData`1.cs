@@ -9,20 +9,28 @@ namespace HandyUtil.Text.Xsv
         public EventHandler<XsvFieldUpdatedEventArgs<T>> Attached;
         public EventHandler<XsvFieldUpdatedEventArgs<T>> Updated;
 
-        public TypedXsvData(ICollection<string> delimiters, bool isAutoBinding)
+        public TypedXsvData(ICollection<string> delimiters, bool isAutoBinding = false)
             : base(delimiters)
         { this.IsAutoBinding = isAutoBinding; }
 
-        public TypedXsvData(IList<XsvDataRow<T>> rows, ICollection<string> delimiters)
+        public TypedXsvData(IList<XsvDataRow<T>> rows, ICollection<string> delimiters, bool isAutoBinding = false)
             : base(rows, delimiters)
-        {}
+        { this.IsAutoBinding = isAutoBinding; }
+
+        public TypedXsvData(XsvDataSettings settings, bool isAutoBinding = false)
+            : base(settings)
+        { this.IsAutoBinding = isAutoBinding; }
+
+        public TypedXsvData(IList<XsvDataRow<T>> rows, XsvDataSettings settings, bool isAutoBinding = false)
+            : base(rows, settings)
+        { this.IsAutoBinding = isAutoBinding; }
 
         protected override XsvDataRow<T> CreateXsvRow(IEnumerable<string> header, IEnumerable<string> fields)
         {
             var row = new XsvDataRow<T>(IsAutoBinding);
             row.Attached += OnAttached;
             row.Updated += OnUpdated;
-            row.SetFields(header, fields, DefaultColumnName);
+            row.SetFields(header, fields, Settings.DefaultColumnName);
             return row;
         }
 

@@ -44,9 +44,9 @@ namespace HandyUtil.Text.Xsv
             return _items.Keys.Select(head => head.MakeXsvField(delimiters)).ConcatWith(delimiter);
         }
 
-        public string OutputFields(IEnumerable<string> delimiters, string delimiter, bool FieldUpdates = true)
+        public string OutputFields(IEnumerable<string> delimiters, string delimiter, bool updateFields = true)
         {
-            if (FieldUpdates)
+            if (updateFields)
             { UpdateFields(); }
 
             return _items.Values.Select(field => field.ToString(delimiters)).ConcatWith(delimiter);

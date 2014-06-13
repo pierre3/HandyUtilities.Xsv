@@ -54,10 +54,10 @@ namespace Utility.TextTest
             Console.WriteLine(testData);
             Console.WriteLine("");
 
-            using (var reader = new XsvReader(new System.IO.StringReader(testData)))
+            using (var reader = new System.IO.StringReader(testData))
             {
                 var target = new XsvData<XsvDataRow>(new[] { sep, sep2 });
-                target.Read(reader, true);
+                target.Read(reader);
                 foreach (var row in target.Rows)
                 {
                     Console.WriteLine(row.ToString() + " <<");
@@ -102,12 +102,12 @@ namespace Utility.TextTest
 
             protected override void AttachFields()
             {
-                this.品番 = this["品番"].AsInt32(defaultValue:0);
-                this.船種 = this["船種"].AsString(defaultValue:"不明");
-                this.品名 = this["品名"].AsString(defaultValue:"名無し");
-                this.税込価格 = this["税込価格"].AsInt32(defaultValue:-1);
-                this.本体価格 = this["本体価格"].AsInt32(numberStyles:System.Globalization.NumberStyles.Currency, defaultValue:-1);
-                this.メーカー = this["メーカー"].AsEnum<Maker>(defaultValue:Maker.UNKNOWN);
+                this.品番 = this["品番"].AsInt32(defaultValue: 0);
+                this.船種 = this["船種"].AsString(defaultValue: "不明");
+                this.品名 = this["品名"].AsString(defaultValue: "名無し");
+                this.税込価格 = this["税込価格"].AsInt32(defaultValue: -1);
+                this.本体価格 = this["本体価格"].AsInt32(numberStyles: System.Globalization.NumberStyles.Currency, defaultValue: -1);
+                this.メーカー = this["メーカー"].AsEnum<Maker>(defaultValue: Maker.UNKNOWN);
             }
             protected override void UpdateFields()
             {
@@ -119,7 +119,7 @@ namespace Utility.TextTest
                 this["メーカー"] = new XsvField(this.メーカー);
             }
         }
-        
+
         string data1 = "品番,船種,品名,税込価格,本体価格,メーカー" + Environment.NewLine
                 + "110,戦艦,比叡　ひえい,2625,\"2,500\",Ｈ" + Environment.NewLine
                 + "119,航空戦艦,伊勢　いせ,3360,\"3,200\",Ｈ" + Environment.NewLine
@@ -131,8 +131,6 @@ namespace Utility.TextTest
         [TestMethod]
         public void ReadCsvTest_indexer()
         {
-            
-
             var expected = new[]{ 
                 new { 品番 = 110, 船種 = "戦艦", 品名 = "比叡　ひえい", 税込価格 = 2625, 本体価格 = 2500, メーカー = Maker.Ｈ },
                 new { 品番 = 119, 船種 = "航空戦艦", 品名 = "伊勢　いせ", 税込価格 = 3360, 本体価格 = 3200, メーカー = Maker.Ｈ },
@@ -142,10 +140,14 @@ namespace Utility.TextTest
                 new { 品番 = 429, 船種 = "駆逐艦", 品名 = "桜　さくら", 税込価格 = 630, 本体価格 = 600, メーカー = Maker.Ｔ }
             };
 
-            var target = new XsvData(new[] { "," });
-            using (var reader = new XsvReader(new System.IO.StringReader(data1)))
+            var target = new XsvData(new XsvDataSettings()
             {
-                target.Read(reader, headerExists: true);
+                Delimiters = new[] { "," },
+                HeaderExists = true
+            });
+            using (var reader = new System.IO.StringReader(data1))
+            {
+                target.Read(reader);
             }
 
             foreach (var x in target.Rows.Zip(expected, (a, b) => new { row = a, exp = b }))
@@ -180,9 +182,9 @@ namespace Utility.TextTest
             };
 
             var target = new XsvData<ShipModelDataRow>(new[] { "," });
-            using (var reader = new XsvReader(new System.IO.StringReader(data2)))
+            using (var reader = new System.IO.StringReader(data2))
             {
-                target.Read(reader, true);
+                target.Read(reader);
             }
 
             foreach (var x in target.Rows.Zip(expected, (a, b) => new { row = a, exp = b }))
@@ -209,9 +211,9 @@ namespace Utility.TextTest
             };
 
             var target = new XsvData<ShipModelDataRow>(new[] { "," });
-            using (var reader = new XsvReader(new System.IO.StringReader(data2)))
+            using (var reader = new System.IO.StringReader(data2))
             {
-                target.Read(reader, true);
+                target.Read(reader);
             }
 
             target.AddColumnHeader("名前");
@@ -236,7 +238,8 @@ namespace Utility.TextTest
         }
 
         [TestMethod]
-        public void EditColumnHeaderTest(){
+        public void EditColumnHeaderTest()
+        {
             string expected = "品番,名前,本体価格,メーカー,品名" + Environment.NewLine
                + "110,戦艦 比叡　ひえい,\"2,500\",Ｈ,比叡　ひえい" + Environment.NewLine
                + "119,航空戦艦 伊勢　いせ,\"3,200\",Ｈ,伊勢　いせ" + Environment.NewLine
@@ -246,9 +249,9 @@ namespace Utility.TextTest
                + "xxx,不明 名無し,xxx,xxx," + Environment.NewLine;
 
             var target = new XsvData<ShipModelDataRow>(new[] { "," });
-            using (var reader = new XsvReader(new System.IO.StringReader(data2)))
+            using (var reader = new System.IO.StringReader(data2))
             {
-                target.Read(reader, true);
+                target.Read(reader);
             }
 
             target.AddColumnHeader("名前");
@@ -260,11 +263,14 @@ namespace Utility.TextTest
             target.RemoveColumnHeader("船種");
             target.SwapColumnHeader("品名", "名前");
             var sb = new StringBuilder();
-            using(var writer = new StringWriter(sb)){
-                target.Write(writer, ",", new XsvData<ShipModelDataRow>.WriterSettings() {
-                    HeaderOutputs = true,
-                    ColumnSynchronises = true,
-                    FieldUpdates = false });
+            using (var writer = new StringWriter(sb))
+            {
+                target.Write(writer, ",", new XsvWriteSettings()
+                {
+                    OutputsHeader = true,
+                    SynchronisesColumn = true,
+                    UpdatesField = false
+                });
             }
             Console.Write(sb.ToString());
             Assert.AreEqual(expected, sb.ToString());

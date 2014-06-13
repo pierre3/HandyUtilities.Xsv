@@ -23,12 +23,14 @@ namespace WpfApp
             InitializeComponent();
         }
 
-        private void ReadButtonClick(object sender, RoutedEventArgs e)
+        //private void ReadButtonClick(object sender, RoutedEventArgs e)
+        private async void ReadButtonClick(object sender, RoutedEventArgs e)
         {
             if (VM == null) { return; }
 
             VM.Clear();
-            VM.ReadAsObservable();
+            //VM.ReadAsObservable();
+            await VM.ReadAsync();
         }
 
         private void CancelButtonClick(object sender, RoutedEventArgs e)
@@ -55,28 +57,32 @@ namespace WpfApp
             var keyedRow = header.Zip(row, (h, r) => new { h, r }).ToDictionary(a => a.h, a => a.r);
             return new ModelShip()
             {
-                No = keyedRow["Ｎｏ."].ToInt32(),
-                ClassOfShip = keyedRow["艦種"],
-                Name = keyedRow["品名"],
-                TaxIncludedPrice = keyedRow["税込価格"].ToInt32OrDefault(System.Globalization.NumberStyles.Currency, -1),
-                Price = keyedRow["本体価格"].ToInt32OrDefault(System.Globalization.NumberStyles.Currency, -1),
-                Maker = keyedRow["メーカー"]
+                No = keyedRow["No"].ToInt32(),
+                ClassOfShip = keyedRow["ClassOfShip"],
+                Name = keyedRow["Name"],
+                TaxIncludedPrice = keyedRow["TaxIncludedPrice"].ToInt32OrDefault(System.Globalization.NumberStyles.Currency, -1),
+                Price = keyedRow["Price"].ToInt32OrDefault(System.Globalization.NumberStyles.Currency, -1),
+                Maker = keyedRow["Maker"]
             };
         }
     }
 
     /// <summary>
-    /// 
+    /// CsvData
     /// </summary>
     public class CsvData
     {
         private IDisposable disposable = System.Reactive.Disposables.Disposable.Empty;
-
+        private System.Threading.CancellationTokenSource cts;
+        
         public ObservableCollection<ModelShip> Rows { set; get; }
+        public ObservableCollection<XsvDataRow<ModelShip>> XsvRows { set; get; }
 
         public CsvData()
         {
             Rows = new ObservableCollection<ModelShip>();
+            XsvRows = new ObservableCollection<XsvDataRow<ModelShip>>();
+            cts = new System.Threading.CancellationTokenSource();
         }
 
         public void Clear() 
@@ -92,8 +98,23 @@ namespace WpfApp
                 disposable.Dispose();
                 disposable = null;
             }
+            if (cts != null)
+            {
+                cts.Cancel();
+                cts = new System.Threading.CancellationTokenSource();
+            }
         }
 
+        public async Task ReadAsync()
+        {
+            var data = new TypedXsvData<ModelShip>(this.XsvRows, 
+                new XsvDataSettings() { CommentToken=";" }, true);
+            using (var reader = new System.IO.StreamReader(@".\ModelShips.txt"))
+            {
+                await data.ReadAsync(reader,cts.Token);
+            }
+        }
+        
         public void ReadAsObservable()
         {
             Cancel();
@@ -104,8 +125,8 @@ namespace WpfApp
             disposable = reader.ReadXsvAsObservable(new[] { "," })
                 .Where(row => !row.First().StartsWith(";"))
                 .Select(row => ModelShip.FromCsvRecord(header, row))
-                .Where(row => row.Price >= 2500)
-                .Where(row => row.ClassOfShip == "戦艦")
+                //.Where(row => row.Price >= 2500)
+                //.Where(row => row.ClassOfShip == "戦艦")
                 .ObserveOn(System.Threading.SynchronizationContext.Current)
                 .Subscribe(
                     row => 

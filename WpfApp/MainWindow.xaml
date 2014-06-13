@@ -15,8 +15,17 @@
                   HorizontalAlignment="Stretch" 
                   Margin="4" 
                   VerticalAlignment="Stretch"
-                  ItemsSource="{Binding Rows}"
-                  AutoGenerateColumns="True" />
+                  ItemsSource="{Binding XsvRows}"
+                  AutoGenerateColumns="False" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="No." Binding="{Binding Fields.No}"/>
+                <DataGridTextColumn Header="船種" Binding="{Binding Fields.ClassOfShip}"/>
+                <DataGridTextColumn Header="名前" Binding="{Binding Fields.Name}"/>
+                <DataGridTextColumn Header="税込価格" Binding="{Binding Fields.TaxIncludedPrice}"/>
+                <DataGridTextColumn Header="本体価格" Binding="{Binding Fields.Price}"/>
+                <DataGridTextColumn Header="メーカー" Binding="{Binding Fields.Maker}"/>
+            </DataGrid.Columns>
+        </DataGrid>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Margin="4" Padding="8,4" Click="ReadButtonClick">Read</Button>
             <Button Margin="4" Padding="8,4" Click="CancelButtonClick">Cancel</Button>

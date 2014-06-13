@@ -20,6 +20,12 @@ namespace HandyUtil.Text.Xsv
             this.Source = value.ToString();
         }
 
+        public XsvField(XsvField xsvField)
+            :this()
+        {
+            this.Source = xsvField.Source;
+        }
+
         public string AsString()
         {
             return Source;
